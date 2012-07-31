@@ -2,30 +2,30 @@
 
 define('LANGUAGE_NEGOTIATION_SELECTION_PAGE', 'language-selection-page');
 // theme settings - numeric values for D6 upgrade purposes
-define('I18N_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
-define('I18N_SELECTION_PAGE_TEMPLATE_ONLY', 64);
+define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
+define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
 
 /**
  * Implements hook_menu().
  */
-function i18n_selection_page_menu() {
+function language_selection_page_menu() {
   $items = array();
 
   $items['admin/config/regional/language/configure/selection_page'] = array(
     'title' => 'Language selection page',
     'description' => 'Configure the language selection page behavior',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_selection_page_admin'),
+    'page arguments' => array('language_selection_page_admin'),
     'access arguments' => array('administer languages'),
-    'file' => 'i18n_selection_page.admin.inc',
+    'file' => 'language_selection_page.admin.inc',
     'type' => MENU_VISIBLE_IN_BREADCRUMB
   );
 
   $items['language_selection'] = array(
     'description' => 'Language selection page',
-    'page callback' => 'i18n_selection_page_selection_page',
+    'page callback' => 'language_selection_page_selection_page',
     'access arguments' => array('access content'),
-    'file' => 'i18n_selection_page.pages.inc',
+    'file' => 'language_selection_page.pages.inc',
     'type' => MENU_NORMAL_ITEM
   );
 
@@ -37,15 +37,15 @@ function i18n_selection_page_menu() {
  *
  * @return array()
  */
-function i18n_selection_page_language_negotiation_info() {
+function language_selection_page_language_negotiation_info() {
   $language_providers[LANGUAGE_NEGOTIATION_SELECTION_PAGE] = array(
     'types' => array(LANGUAGE_TYPE_CONTENT, LANGUAGE_TYPE_INTERFACE, LANGUAGE_TYPE_URL),
     'callbacks' => array(
-      'language' => 'i18n_selection_page_language',
+      'language' => 'language_selection_page_language',
       'switcher' => 'locale_language_switcher_url',
       'url_rewrite' => 'locale_language_url_rewrite_url'
     ),
-    'file' => drupal_get_path('module', 'i18n_selection_page') . '/i18n_selection_page.module',
+    'file' => drupal_get_path('module', 'language_selection_page') . '/language_selection_page.module',
     'weight' => 50,
     'name' => t('Selection Page'),
     'description' => t('Show a language selection page to the visitor for making a language choice.'),
@@ -57,7 +57,7 @@ function i18n_selection_page_language_negotiation_info() {
 /**
  * Language selection callback method
  */
-function i18n_selection_page_language($languages) {
+function language_selection_page_language($languages) {
   require_once('./includes/locale.inc');
   require_once('./includes/path.inc');
   require_once('./includes/common.inc');
@@ -74,7 +74,7 @@ function i18n_selection_page_language($languages) {
 
   // Don't run this code if we are on a blacklisted path
   /*
-  $blacklist = variable_get('i18n_selection_page_blacklisted_paths', array());
+  $blacklist = variable_get('language_selection_page_blacklisted_paths', array());
   if ((bool) drupal_match_path($_GET['q'], implode("\r\n", $blacklist))) {
     return;
   }
@@ -95,19 +95,19 @@ function i18n_selection_page_language($languages) {
 /**
  * Implements hook_theme().
  */
-function i18n_selection_page_theme() {
+function language_selection_page_theme() {
   return array(
-    'i18n_selection_page' => array(
+    'language_selection_page' => array(
       'arguments' => array('data' => array()),
-      'path' => drupal_get_path('module', 'i18n_selection_page') . '/themes',
-      //'file' => '/i18n_selection_page.pages.inc',
-      'template' => 'i18n_selection_page'
+      'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
+      //'file' => '/language_selection_page.pages.inc',
+      'template' => 'language_selection_page'
     ),
-    'i18n_selection_page_body' => array(
+    'language_selection_page_body' => array(
       'arguments' => array('data' => array()),
-      'path' => drupal_get_path('module', 'i18n_selection_page') . '/themes',
-      //'file' => 'i18n_selection_page.pages.inc',
-      'template' => 'i18n_selection_page_body'
+      'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
+      //'file' => 'language_selection_page.pages.inc',
+      'template' => 'language_selection_page_body'
     )
   );
 }

@@ -6,7 +6,7 @@
 /**
  * Menu callback to display the selection page.
  */
-function i18n_selection_page_selection_page() {
+function language_selection_page_selection_page() {
   $query = drupal_get_query_parameters();
   $from = array_key_exists('destination', $query) ? $query['destination'] : '<front>';
   unset($query['q']);
@@ -32,17 +32,17 @@ function i18n_selection_page_selection_page() {
   $data['links']['html']  = theme('item_list', $data['links']);
 
   // before we start processing the gathered data, we let other modules alter it
-  // by letting them implement hook_i18n_selection_page_data_alter(&$data)
-  drupal_alter('i18n_selection_page_data', $data);
+  // by letting them implement hook_language_selection_page_data_alter(&$data)
+  drupal_alter('language_selection_page_data', $data);
 
-  $data['content'] = theme('i18n_selection_page_body', $data);
+  $data['content'] = theme('language_selection_page_body', $data);
 
-  switch (variable_get('i18n_selection_page_redirect_type', I18N_SELECTION_PAGE_TEMPLATE_ONLY)) {
-    case I18N_SELECTION_PAGE_TEMPLATE_IN_THEME:
+  switch (variable_get('language_selection_page_redirect_type', language_selection_page_TEMPLATE_ONLY)) {
+    case language_selection_page_TEMPLATE_IN_THEME:
       return $data['content'];
       break;
-    case I18N_SELECTION_PAGE_TEMPLATE_ONLY:
-      drupal_add_css(drupal_get_path('module', 'i18n_selection_page') . '/themes/css/i18n_selection_page.css');
+    case language_selection_page_TEMPLATE_ONLY:
+      drupal_add_css(drupal_get_path('module', 'language_selection_page') . '/themes/css/language_selection_page.css');
 
       $data['head'] = drupal_get_html_head();
       $data['css'] = drupal_add_css();
@@ -50,7 +50,7 @@ function i18n_selection_page_selection_page() {
       $data['scripts'] = drupal_get_js();
       $data['title'] = t("Language selection");
 
-      print theme('i18n_selection_page', $data);
+      print theme('language_selection_page', $data);
       exit;
   }
 }

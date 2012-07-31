@@ -9,7 +9,7 @@
  *
  * @return array
  */
-function _i18n_selection_page_check_language_count() {
+function _language_selection_page_check_language_count() {
   // We cannot rely on the variables from Features or system.
   $language_count = language_list('enabled');
   return array('db' => count($language_count[1]), 'vars' => variable_get('language_count', 1));
@@ -21,7 +21,7 @@ function _i18n_selection_page_check_language_count() {
  *
  * @return array
  */
-function _i18n_selection_page_get_error_messages() {
+function _language_selection_page_get_error_messages() {
 
   $args = func_get_args();
   $t = get_t();

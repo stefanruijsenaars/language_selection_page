@@ -8,8 +8,8 @@
  *
  */
 ?>
-<div class="i18n_selection_page_body">
-  <div class="i18n_selection_page_body_inner">
+<div class="language_selection_page_body">
+  <div class="language_selection_page_body_inner">
     <p>Hello,</p>
 
     <p>You are coming from <?php print $from_link['html']; ?></p>
