@@ -34,7 +34,11 @@ INSTALLATION
 5. Go to admin/config/regional/language/configure to configure language detection and selection
    - enable the "Selection Page" detection method
    - it is recommended to position this method near the bottom, just above "Default".
-6. Customize the template by copying the .tpl.php file to your current theme directory.
+
+THEMING
+-------
+Customize the template by copying the .tpl.php file to your current theme directory.
+If you selected "Template in theme", you might want to add a page--languageselection.tpl.php file to your theme, that removes any sidebars or regions that could intervene with the language selection task.
 
 MAINTAINERS
 ------------

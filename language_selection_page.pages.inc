@@ -49,6 +49,9 @@ function language_selection_page_selection_page() {
       $data['styles'] = drupal_get_css();
       $data['scripts'] = drupal_get_js();
       $data['title'] = t("Language selection");
+      $data['logo'] = theme_get_setting('logo');
+      $data['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');
+      $data['site_slogan'] = (theme_get_setting('toggle_slogan') ? filter_xss_admin(variable_get('site_slogan', '')) : '');
 
       print theme('language_selection_page', $data);
       exit;
