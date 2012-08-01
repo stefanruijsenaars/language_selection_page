@@ -8,6 +8,7 @@
  * Implements hook_requirements().
  */
 function language_selection_page_requirements($phase) {
+  $t = get_t();
   module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
 
   $requirements = array();
@@ -17,7 +18,8 @@ function language_selection_page_requirements($phase) {
   if ($language_count['db'] != $language_count['vars']) {
     $requirements['language_selection_page'] = array(
       'title' => 'Language Selection Page',
-      'value' => _language_selection_page_get_error_messages('language_count', $language_count['db'], $language_count['vars']),
+      'value' => $t('There is a problem with the <b>language_count</b> variable.<br/>There are @language_count_db languages enabled in the database and @language_count_vars in the variable table (or from Features/Strongarm).<br/>This can lead to problems in your Drupal website.<br/>Please fix this problem before going further.', array('@language_count_db' => $language_count['db'], '@language_count_vars' => $language_count['vars'])),
+
       'severity' => REQUIREMENT_ERROR
     );
     return $requirements;
@@ -27,7 +29,7 @@ function language_selection_page_requirements($phase) {
     $lang_list_without_prefix = array();
     foreach ($lang_list[1] as $lang) {
       if (empty($lang->prefix)) {
-        $lang_list_without_prefix[$lang->language] = _language_selection_page_get_error_messages('language_prefix', url('admin/config/regional/language/edit/' . $lang->language), $lang->name);
+        $lang_list_without_prefix[$lang->language] = $t('You should add a path prefix to <a href="@language_url">language @language_name</a> if you want to have it enabled in the <b>Language Selection Page</b>.', array('@language_url' => url('admin/config/regional/language/edit/' . $lang->language), '@language_name' => $lang->name));
       }
     }
     if (count($lang_list_without_prefix) >= 1) {
@@ -40,7 +42,7 @@ function language_selection_page_requirements($phase) {
     else {
       $requirements['language_selection_page'] = array(
         'title' => 'Language Selection Page',
-        'value' => _language_selection_page_get_error_messages('language_all_good'),
+        'value' => $t('All your enabled languages have language prefixes.'),
         'severity' => REQUIREMENT_OK
       );
     }
@@ -49,7 +51,7 @@ function language_selection_page_requirements($phase) {
     $link = url('admin/config/regional/language');
     $requirements['language_selection_page'] = array(
       'title' => 'Language Selection Page',
-      'value' => _language_selection_page_get_error_messages('language_only_one', $link),
+      'value' => $t('There is only <a href="@link">one language enabled</a>.', array('@link' => $link)),
       'severity' => REQUIREMENT_WARNING
     );
   }
