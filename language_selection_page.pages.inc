@@ -38,10 +38,10 @@ function language_selection_page_selection_page() {
   $data['content'] = theme('language_selection_page_body', $data);
 
   switch (variable_get('language_selection_page_redirect_type', language_selection_page_TEMPLATE_ONLY)) {
-    case language_selection_page_TEMPLATE_IN_THEME:
+    case LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME:
       return $data['content'];
       break;
-    case language_selection_page_TEMPLATE_ONLY:
+    case LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY:
       drupal_add_css(drupal_get_path('module', 'language_selection_page') . '/themes/css/language_selection_page.css');
 
       $data['head'] = drupal_get_html_head();
