@@ -61,6 +61,7 @@ function language_selection_page_language($languages) {
   require_once('./includes/locale.inc');
   require_once('./includes/path.inc');
   require_once('./includes/common.inc');
+  require_once('./includes/unicode.inc');
 
   $lang = locale_language_from_url($languages);
   if ($lang) {
@@ -73,12 +74,12 @@ function language_selection_page_language($languages) {
   }
 
   // Don't run this code if we are on a blacklisted path
-  /*
-  $blacklist = variable_get('language_selection_page_blacklisted_paths', array());
-  if ((bool) drupal_match_path($_GET['q'], implode("\r\n", $blacklist))) {
+  $blacklist_pages = variable_get('language_selection_page_blacklisted_paths', '');
+  $blacklist_pages = drupal_strtolower($blacklist_pages);
+  $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+  if (drupal_match_path($current_path, $blacklist_pages)) {
     return;
   }
-  */
 
   // @TODO: document this
   if (!isset($_SERVER['SERVER_ADDR'])) {

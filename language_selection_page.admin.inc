@@ -27,25 +27,19 @@ function language_selection_page_admin() {
                          <br/>Create a file named <i>language_selection_page_body.tpl.php</i> in your theme directory if you want to override the body only.')
   );
 
-  // $form['language_selection_page_blacklisted_paths'] = array(
-  //  '#type' => 'textarea',
-  //  '#title' => t('List of paths to blacklist'),
-  //  '#default_value' => implode("\n", variable_get('language_selection_page_blacklisted_paths', array('admin', 'user', 'admin/*', 'admin*', 'node/add/*', 'node/*/edit'))),
-  //  '#size' => 10,
-  //  '#description' => t('Write on each line a path to blacklist from Language Selection Page processor')
-  //);
+   $default_blacklist_paths = array('admin', 'user', 'admin/*', 'admin*', 'node/add/*', 'node/*/edit');
+   $form['language_selection_page_blacklisted_paths'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Paths blacklist'),
+    '#default_value' => variable_get('language_selection_page_blacklisted_paths', implode(PHP_EOL, $default_blacklist_paths)),
+    '#size' => 10,
+    '#description' => t('Specify on which paths the language selection pages should be circumvented.') . '<br />'
+       . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+  );
 
   $form['#submit'][] = 'language_selection_page_admin_submit';
 
   drupal_flush_all_caches();
 
   return system_settings_form($form);
-}
-
-function language_selection_page_admin_validate($form, &$form_state) {
-  $form_state['values']['language_selection_page_blacklisted_paths'] = explode("\n", trim($form_state['values']['language_selection_page_blacklisted_paths']));
-}
-
-function language_selection_page_admin_submit($form, &$form_state) {
-
 }
