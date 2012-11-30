@@ -37,8 +37,6 @@ function language_selection_page_admin() {
        . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
 
-  $form['#submit'][] = 'language_selection_page_admin_submit';
-
   drupal_flush_all_caches();
 
   return system_settings_form($form);
