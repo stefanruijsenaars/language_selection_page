@@ -77,6 +77,12 @@ function language_selection_page_language($languages) {
   $blacklist_pages = variable_get('language_selection_page_blacklisted_paths', '');
   $blacklist_pages = drupal_strtolower($blacklist_pages);
   $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+
+  // In order to be able to blacklist pages like 'update.php', if current_path is empty, the php REQUEST_URI will be matched  
+  if (empty($current_path)) {
+    $current_path = ltrim($_SERVER["REQUEST_URI"], '/');
+  }
+
   if (drupal_match_path($current_path, $blacklist_pages)) {
     return;
   }
