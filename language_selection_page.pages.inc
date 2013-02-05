@@ -12,12 +12,15 @@ function language_selection_page_selection_page() {
   unset($query['q']);
   unset($query['destination']);
 
+  $language_none_object = new StdClass();
+  $language_none_object->language = LANGUAGE_NONE;
+
   // prepare information about the link the user is coming from
-  $link_text = url($from, array('query' => $query, 'language' => LANGUAGE_NONE));
+  $link_text = url($from, array('query' => $query, 'language' => $language_none_object));
   $data['from_link']['from_text'] = $from;
   $data['from_link']['from_query'] = $query;
-  $data['from_link']['link_text'] = url($from, array('query' => $query, 'language' => LANGUAGE_NONE));
-  $data['from_link']['html'] = l($link_text, $from, array('query' => $query, 'language' => LANGUAGE_NONE));
+  $data['from_link']['link_text'] = url($from, array('query' => $query, 'language' => $language_none_object));
+  $data['from_link']['html'] = l($link_text, $from, array('query' => $query, 'language' => $language_none_object));
 
   // prepare the links per language
   foreach (language_list() as $prefix => $language) {
@@ -37,7 +40,7 @@ function language_selection_page_selection_page() {
 
   $data['content'] = theme('language_selection_page_body', $data);
 
-  switch (variable_get('language_selection_page_redirect_type', language_selection_page_TEMPLATE_ONLY)) {
+  switch (variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     case LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME:
       return $data['content'];
       break;
