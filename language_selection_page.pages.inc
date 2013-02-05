@@ -23,7 +23,7 @@ function language_selection_page_selection_page() {
   $data['from_link']['html'] = l($link_text, $from, array('query' => $query, 'language' => $language_none_object));
 
   // prepare the links per language
-  foreach (language_list() as $prefix => $language) {
+  foreach (language_list('enabled') as $prefix => $language) {
     // @TODO: is prefix check necessary?
     if (!$language->prefix) continue;
     // format a human-readable link to let a user continue in this language
