@@ -1,7 +1,7 @@
 <?php
 
 define('LANGUAGE_NEGOTIATION_SELECTION_PAGE', 'language-selection-page');
-// theme settings - numeric values for D6 upgrade purposes
+// theme settings - numeric values for D6 upgrade purposes.
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
 
@@ -18,7 +18,7 @@ function language_selection_page_menu() {
     'page arguments' => array('language_selection_page_admin'),
     'access arguments' => array('administer languages'),
     'file' => 'language_selection_page.admin.inc',
-    'type' => MENU_VISIBLE_IN_BREADCRUMB
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
 
   $items['language_selection'] = array(
@@ -26,7 +26,7 @@ function language_selection_page_menu() {
     'page callback' => 'language_selection_page_selection_page',
     'access arguments' => array('access content'),
     'file' => 'language_selection_page.pages.inc',
-    'type' => MENU_NORMAL_ITEM
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
@@ -34,34 +34,41 @@ function language_selection_page_menu() {
 
 /**
  * Implements hook_language_negotiation_info().
- *
- * @return array()
  */
 function language_selection_page_language_negotiation_info() {
   $language_providers[LANGUAGE_NEGOTIATION_SELECTION_PAGE] = array(
-    'types' => array(LANGUAGE_TYPE_CONTENT, LANGUAGE_TYPE_INTERFACE, LANGUAGE_TYPE_URL),
+    'types' => array(
+      LANGUAGE_TYPE_CONTENT,
+      LANGUAGE_TYPE_INTERFACE,
+      LANGUAGE_TYPE_URL,
+    ),
     'callbacks' => array(
       'language' => 'language_selection_page_language',
       'switcher' => 'locale_language_switcher_url',
-      'url_rewrite' => 'locale_language_url_rewrite_url'
+      'url_rewrite' => 'locale_language_url_rewrite_url',
     ),
     'file' => drupal_get_path('module', 'language_selection_page') . '/language_selection_page.module',
     'weight' => 50,
     'name' => t('Selection Page'),
     'description' => t('Show a language selection page to the visitor for making a language choice.'),
-    'config' => 'admin/config/regional/language/configure/selection_page'
+    'config' => 'admin/config/regional/language/configure/selection_page',
   );
   return $language_providers;
 }
 
 /**
- * Language selection callback method
+ * Language selection callback method.
  */
 function language_selection_page_language($languages) {
-  require_once('./includes/locale.inc');
-  require_once('./includes/path.inc');
-  require_once('./includes/common.inc');
-  require_once('./includes/unicode.inc');
+  require_once './includes/locale.inc';
+  require_once './includes/path.inc';
+  require_once './includes/common.inc';
+  require_once './includes/unicode.inc';
+
+  // Bail out when running tests on commandline.
+  if (drupal_is_cli()) {
+    return;
+  }
 
   $lang = locale_language_from_url($languages);
   if ($lang) {
@@ -73,12 +80,13 @@ function language_selection_page_language($languages) {
     return;
   }
 
-  // Don't run this code if we are on a blacklisted path
+  // Don't run this code if we are on a blacklisted path.
   $blacklist_pages = variable_get('language_selection_page_blacklisted_paths', '');
   $blacklist_pages = drupal_strtolower($blacklist_pages);
   $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
 
-  // In order to be able to blacklist pages like 'update.php', if current_path is empty, the php REQUEST_URI will be matched  
+  // In order to be able to blacklist pages like 'update.php',
+  // if current_path is empty, the php REQUEST_URI will be match.
   if (empty($current_path)) {
     $current_path = ltrim($_SERVER["REQUEST_URI"], '/');
   }
@@ -92,7 +100,8 @@ function language_selection_page_language($languages) {
     return;
   }
 
-  // redirect to the language selection page, with the currently requested page as destination
+  // Redirect to the language selection page,
+  // with the currently requested page as destination.
   $query = drupal_get_query_parameters();
   $query['destination'] = $_GET['q'] ? $_GET['q'] : '<front>';
   $language = $GLOBALS['language'];
