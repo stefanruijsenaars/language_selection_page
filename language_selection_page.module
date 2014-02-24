@@ -106,6 +106,11 @@ function language_selection_page_language($languages) {
     return;
   }
 
+  // Don't run this code if we are accessing another php file than index.php.
+  if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
+    return;
+  }
+
   // Redirect to the language selection page,
   // with the currently requested page as destination.
   $query = drupal_get_query_parameters();
