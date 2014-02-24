@@ -33,6 +33,21 @@ function language_selection_page_menu() {
 }
 
 /**
+ * Implements hook_boot().
+ *
+ * Prevents redirect by globalredirect. Putting this in hook_boot so that it
+ * executes before globalredirect_init().
+ *
+ * See https://drupal.org/node/1438584#comment-6167916
+ */
+function language_selection_page_boot() {
+  $path = request_path();
+  if ($path == 'language_selection') {
+    $_POST['globalredirect'] = 'Disabled on language selection page.';
+  }
+}
+
+/**
  * Implements hook_language_negotiation_info().
  */
 function language_selection_page_language_negotiation_info() {
