@@ -18,7 +18,7 @@
     <?php print $scripts; ?>
   </head>
   <body class='i18n_selection_page'>
-        <?php print $content; ?>
+        <?php print $page; ?>
   </body>
 </html>
 

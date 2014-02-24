@@ -116,13 +116,12 @@ function language_selection_page_theme() {
     'language_selection_page' => array(
       'arguments' => array('data' => array()),
       'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      //'file' => '/language_selection_page.pages.inc',
-      'template' => 'language_selection_page'
+      'template' => 'language_selection_page',
+      'base hook' => 'html'
     ),
     'language_selection_page_body' => array(
       'arguments' => array('data' => array()),
       'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      //'file' => 'language_selection_page.pages.inc',
       'template' => 'language_selection_page_body'
     )
   );
@@ -133,7 +132,5 @@ function language_selection_page_theme() {
  * Implements hook_preprocess_page().
  */
 function language_selection_page_preprocess_page(&$vars) {
-  if (arg(0) == "language_selection") {
-    $vars['theme_hook_suggestions'][] = 'page__languageselection';
-  }
+  $vars['theme_hook_suggestions'][] = 'page__language_selection';
 }
