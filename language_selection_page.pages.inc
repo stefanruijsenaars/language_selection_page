@@ -31,6 +31,7 @@ function language_selection_page_selection_page() {
     $link_text = drupal_ucfirst(drupal_strtolower(t('Continue in', array(), array('langcode' => $language->language)))) . ' ' . $language->native;
     // add this link to the data list
     $data['links']['items'][$prefix] = l($link_text, $from, array('query' => $query, 'language' => $language));
+    $data['urls']['items'][$prefix] = url($from, array('query' => $query, 'language' => $language));
   }
 
   $data['links']['html']  = theme('item_list', $data['links']);
