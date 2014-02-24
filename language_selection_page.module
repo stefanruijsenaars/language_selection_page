@@ -95,6 +95,12 @@ function language_selection_page_language($languages) {
     return;
   }
 
+  // Don't run this code if we are accessing an image.
+  $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
+  if (strpos($_GET['q'], $styles_path) === 0) {
+    return;
+  }
+
   // @TODO: document this
   if (!isset($_SERVER['SERVER_ADDR'])) {
     return;
