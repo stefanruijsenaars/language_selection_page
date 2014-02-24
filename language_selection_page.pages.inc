@@ -49,7 +49,8 @@ function language_selection_page_selection_page() {
       drupal_add_css(drupal_get_path('module', 'language_selection_page') . '/themes/css/language_selection_page.css');
       $data['title'] = t("Language selection");
       $data['page']['#children'] = $content;
-      print theme('language_selection_page', $data);
+      $data['language_selection_page'] = $data;
+      print theme('html', $data);
       exit;
   }
 }

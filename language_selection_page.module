@@ -113,12 +113,6 @@ function language_selection_page_language($languages) {
  */
 function language_selection_page_theme() {
   return array(
-    'language_selection_page' => array(
-      'arguments' => array('data' => array()),
-      'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      'template' => 'language_selection_page',
-      'base hook' => 'html'
-    ),
     'language_selection_page_body' => array(
       'arguments' => array('data' => array()),
       'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
