@@ -80,62 +80,60 @@ function language_selection_page_language($languages) {
     return;
   }
 
-  // Don't run this code if we are on a blacklisted path.
-  $blacklist_pages = variable_get('language_selection_page_blacklisted_paths', '');
-  $blacklist_pages = drupal_strtolower($blacklist_pages);
-  $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+  if ($blacklist_pages = variable_get('language_selection_page_blacklisted_paths')) {
+    $blacklist_pages = drupal_strtolower($blacklist_pages);
+    $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    // In order to be able to blacklist pages like 'update.php',
+    // if current_path is empty, the php REQUEST_URI will be match.
+    if (empty($current_path)) {
+      $current_path = ltrim($_SERVER["REQUEST_URI"], '/');
+    }
 
-  // In order to be able to blacklist pages like 'update.php',
-  // if current_path is empty, the php REQUEST_URI will be match.
-  if (empty($current_path)) {
-    $current_path = ltrim($_SERVER["REQUEST_URI"], '/');
+    if (drupal_match_path($current_path, $blacklist_pages)) {
+      return;
+    }
+
+    // Don't run this code if we are accessing an image.
+    $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
+    if (strpos($_GET['q'], $styles_path) === 0) {
+      return;
+    }
+
+    // @TODO: document this
+    if (!isset($_SERVER['SERVER_ADDR'])) {
+      return;
+    }
+
+    // Don't run this code if we are accessing another php file than index.php.
+    if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
+      return;
+    }
+
+    // Redirect to the language selection page,
+    // with the currently requested page as destination.
+    $query = drupal_get_query_parameters();
+    $query['destination'] = $_GET['q'] ? $_GET['q'] : '<front>';
+    $language = $GLOBALS['language'];
+    drupal_goto('language_selection', array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
   }
 
-  if (drupal_match_path($current_path, $blacklist_pages)) {
-    return;
+  /**
+   * Implements hook_theme().
+   */
+  function language_selection_page_theme() {
+    return array(
+      'language_selection_page_body' => array(
+        'arguments' => array('data' => array()),
+        'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
+        'template' => 'language_selection_page_body'
+      )
+    );
   }
 
-  // Don't run this code if we are accessing an image.
-  $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
-  if (strpos($_GET['q'], $styles_path) === 0) {
-    return;
+
+  /**
+   * Implements hook_preprocess_page().
+   */
+  function language_selection_page_preprocess_page(&$vars) {
+    $vars['theme_hook_suggestions'][] = 'page__language_selection';
   }
-
-  // @TODO: document this
-  if (!isset($_SERVER['SERVER_ADDR'])) {
-    return;
-  }
-
-  // Don't run this code if we are accessing another php file than index.php.
-  if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
-    return;
-  }
-
-  // Redirect to the language selection page,
-  // with the currently requested page as destination.
-  $query = drupal_get_query_parameters();
-  $query['destination'] = $_GET['q'] ? $_GET['q'] : '<front>';
-  $language = $GLOBALS['language'];
-  drupal_goto('language_selection', array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
-}
-
-/**
- * Implements hook_theme().
- */
-function language_selection_page_theme() {
-  return array(
-    'language_selection_page_body' => array(
-      'arguments' => array('data' => array()),
-      'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      'template' => 'language_selection_page_body'
-    )
-  );
-}
-
-
-/**
- * Implements hook_preprocess_page().
- */
-function language_selection_page_preprocess_page(&$vars) {
-  $vars['theme_hook_suggestions'][] = 'page__language_selection';
-}
