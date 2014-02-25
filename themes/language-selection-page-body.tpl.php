@@ -29,9 +29,11 @@
     <p>You are coming from <?php print $language_selection_page['from']['link']; ?></p>
     <p>You should go to:</p>
 
+    <ul>
     <?php foreach($language_selection_page['links'] as $data): ?>
       <li><?php echo $data['link']; ?></li>
     <?php endforeach; ?>
+    </ul>
 
   </div>
 </div>
