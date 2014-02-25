@@ -46,7 +46,7 @@ function language_selection_page_selection_page() {
           'attributes' => array(
             'class' => array(
               'language_selection_page_link',
-              'language_selection_page_link_' . drupal_html_class(drupal_clean_css_identifier($language->en))
+              'language_selection_page_link_' . drupal_html_class(drupal_clean_css_identifier($language->language))
             )
           )
         )
