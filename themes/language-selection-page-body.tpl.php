@@ -30,7 +30,7 @@
     <p>You should go to:</p>
 
     <?php foreach($language_selection_page['links'] as $data): ?>
-      <li><?php echo l("Continue in " . $data['language']->native, $data['from'], array('query' => $data['query'], 'language' => $data['language']))?> (<?php print $data['url']; ?>)</li>
+      <li><?php echo $data['link']; ?></li>
     <?php endforeach; ?>
 
   </div>

@@ -43,7 +43,7 @@ function language_selection_page_selection_page() {
 
   // before we start processing the gathered data, we let other modules alter it
   // by letting them implement hook_language_selection_page_data_alter(&$data)
-  drupal_alter('language_selection_page_data', $language_selection_page);
+  drupal_alter('language_selection_page_data', $language_selection_page['language_selection_page']);
 
   $content = theme('language_selection_page_body', $language_selection_page);
 
