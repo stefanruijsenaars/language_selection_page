@@ -1,10 +1,3 @@
 D6
 ==
 * clean up notices in _language_selection_page_get_error_messages() or find a better mechanism
-
-D7:
-===
-* re-enable blacklisting option
-* add more options to set the language based on user input:
-  - through url redirect (default)
-  - cookie / session ?!

@@ -60,14 +60,22 @@ function language_selection_page_requirements($phase) {
 }
 
 /**
+ * Implements hook_install().
+ *
+ * @return void
+ */
+function language_selection_page_install() {
+  $default_blacklist_paths = array('admin', 'user', 'admin/*', 'admin*', 'node/add/*', 'node/*/edit');
+  variable_set('language_selection_page_blacklisted_paths', implode(PHP_EOL, $default_blacklist_paths));
+}
+
+/**
  * Implements hook_uninstall().
  *
  * @return void
  */
 function language_selection_page_uninstall() {
-  variable_del('language_selection_page_use_language_cookie');
   variable_del('language_selection_page_redirect_type');
   variable_del('language_selection_page_blacklisted_paths');
-  variable_del('language_selection_page_cookie_lifetime');
   drupal_set_message(t('The Language Selection Page variables and cookie has been removed successfully.'));
 }

@@ -141,7 +141,7 @@ function language_selection_page_theme() {
     'language_selection_page_body' => array(
       'arguments' => array('data' => array()),
       'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      'template' => 'language_selection_page_body'
+      'template' => 'language-selection-page-body'
     )
   );
 }
