@@ -13,15 +13,23 @@ function language_selection_page_admin() {
 
   $options = array(
     LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY => 'Template only',
-    LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME => t('Template in theme')
+    LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME => t('Template in theme'),
+    LANGUAGE_SELECTION_PAGE_BLOCK => 'In a Drupal\'s block',
   );
+
   $form['language_selection_page_redirect_type'] = array(
     '#title' => t('Select the way the Selection Page should work'),
     '#type' => 'select',
     '#multiple' => FALSE,
     '#default_value' => variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY),
     '#options' => $options,
-    '#description' => t('<ul><li><b>Template only</b>: Display the Language Selection Page template only.</li><li><b>Template in theme</b>: Insert the Language Selection Page body as <i>$content</i> in the current theme.</li></ul>')
+    '#description' => t(
+      '<ul>
+         <li><b>Template only</b>: Display the Language Selection Page template only.</li>
+         <li><b>Template in theme</b>: Insert the Language Selection Page body as <i>$content</i> in the current theme.</li>
+         <li><b>In a Drupal\'s block</b>: Insert the Language Selection Page in a block <em>Language Selection Block</em>.</li>
+       </ul>'
+    )
   );
 
   $form['language_selection_page_blacklisted_paths'] = array(

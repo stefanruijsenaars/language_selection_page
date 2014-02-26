@@ -4,6 +4,7 @@ define('LANGUAGE_NEGOTIATION_SELECTION_PAGE', 'language-selection-page');
 // theme settings - numeric values for D6 upgrade purposes.
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
+define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
 
 /**
  * Implements hook_menu().
@@ -91,13 +92,13 @@ function language_selection_page_language($languages) {
   }
 
   // Don't run this code on the language selection page itself.
-  if ($_GET['q'] == 'language_selection') {
+  if (request_path() == 'language_selection') {
     return;
   }
 
   if ($blacklist_pages = variable_get('language_selection_page_blacklisted_paths')) {
     $blacklist_pages = drupal_strtolower($blacklist_pages);
-    $current_path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    $current_path = drupal_strtolower(drupal_get_path_alias(request_path()));
     // In order to be able to blacklist pages like 'update.php',
     // if current_path is empty, the php REQUEST_URI will be match.
     if (empty($current_path)) {
@@ -111,7 +112,7 @@ function language_selection_page_language($languages) {
 
   // Don't run this code if we are accessing an image.
   $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
-  if (strpos($_GET['q'], $styles_path) === 0) {
+  if (strpos(request_path(), $styles_path) === 0) {
     return;
   }
 
@@ -128,9 +129,16 @@ function language_selection_page_language($languages) {
   // Redirect to the language selection page,
   // with the currently requested page as destination.
   $query = drupal_get_query_parameters();
-  $query['destination'] = $_GET['q'] ? $_GET['q'] : '<front>';
+  $query['destination'] = request_path() ? request_path() : '<front>';
   $language = $GLOBALS['language'];
-  drupal_goto('language_selection', array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
+
+  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+    return FALSE;
+  }
+
+  if (empty($language->provider)) {
+    drupal_goto('language_selection', array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
+  }
 }
 
 /**
@@ -139,17 +147,57 @@ function language_selection_page_language($languages) {
 function language_selection_page_theme() {
   return array(
     'language_selection_page_body' => array(
-      'arguments' => array('data' => array()),
+      'variables' => array('language_selection_page' => array()),
       'path' => drupal_get_path('module', 'language_selection_page') . '/themes',
-      'template' => 'language-selection-page-body'
+      'template' => 'language-selection-page-body',
     )
   );
 }
-
 
 /**
  * Implements hook_preprocess_page().
  */
 function language_selection_page_preprocess_page(&$vars) {
   $vars['theme_hook_suggestions'][] = 'page__language_selection';
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function language_selection_page_block_info() {
+  return array(
+    'language_selection_page_block' => array(
+      'info' => t('Language Selection Block'),
+      'cache' => DRUPAL_NO_CACHE
+    )
+  );
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function language_selection_page_block_view($delta = '') {
+
+  if (LANGUAGE_SELECTION_PAGE_BLOCK != variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+    return array();
+  }
+
+  module_load_include('inc', 'language_selection_page', 'language_selection_page.pages');
+
+  if (!($data = language_selection_page_selection_page_data())) {
+    return array();
+  }
+
+  $block = array();
+
+  switch ($delta) {
+    case 'language_selection_page_block':
+      $block['subject'] = '';
+      $block['content'] = array(
+        '#theme' => 'language_selection_page_body',
+        '#language_selection_page' => $data,
+      );
+      break;
+  }
+  return $block;
 }

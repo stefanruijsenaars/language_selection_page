@@ -3,12 +3,42 @@
  * @file
  * Contains menu callback functions for pages defined in this module
  */
+
 /**
  * Menu callback to display the selection page.
  */
 function language_selection_page_selection_page() {
+
+  $language_selection_page = language_selection_page_selection_page_data();
+  $content = language_selection_page_selection_page_content($language_selection_page);
+
+  switch (variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+    case LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME:
+      return $content;
+      break;
+    case LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY:
+      drupal_add_css(drupal_get_path('module', 'language_selection_page') . '/themes/css/language_selection_page.css');
+      $html['title'] = t("Language selection");
+      $html['page']['#children'] = $content;
+      $html['language_selection_page'] = $language_selection_page;
+      print theme('html', $html);
+      exit;
+  }
+}
+
+function language_selection_page_selection_page_content($data = array()) {
+  return theme('language_selection_page_body', array ('language_selection_page' => $data));
+}
+
+function language_selection_page_selection_page_data() {
+  $language = $GLOBALS['language'];
+
+  if (!empty($language->provider) && ($language->provider != 'language-default')) {
+    return FALSE;
+  }
+
   $query = drupal_get_query_parameters();
-  $from = array_key_exists('destination', $query) ? $query['destination'] : '<front>';
+  $from = array_key_exists('destination', $query) ? $query['destination'] : request_path();
   $language_selection_page = array();
 
   unset($query['q']);
@@ -19,7 +49,7 @@ function language_selection_page_selection_page() {
 
   // prepare information about the link the user is coming from
   $url = url($from, array('query' => $query, 'language' => $language_none_object));
-  $language_selection_page['language_selection_page']['from'] = array(
+  $language_selection_page['from'] = array(
     'text' => $from,
     'query' => $query,
     'url' => $url,
@@ -32,7 +62,7 @@ function language_selection_page_selection_page() {
     // @TODO: is prefix check necessary?
     if (!$language->prefix) continue;
 
-    $language_selection_page['language_selection_page']['links'][] = array(
+    $language_selection_page['links'][] = array(
       'language' => $language,
       'from' => $from,
       'query' => $query,
@@ -56,20 +86,7 @@ function language_selection_page_selection_page() {
 
   // before we start processing the gathered data, we let other modules alter it
   // by letting them implement hook_language_selection_page_data_alter(&$data)
-  drupal_alter('language_selection_page_data', $language_selection_page['language_selection_page']);
+  drupal_alter('language_selection_page_data', $language_selection_page);
 
-  $content = theme('language_selection_page_body', $language_selection_page);
-
-  switch (variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
-    case LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME:
-      return $content;
-      break;
-    case LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY:
-      drupal_add_css(drupal_get_path('module', 'language_selection_page') . '/themes/css/language_selection_page.css');
-      $html['title'] = t("Language selection");
-      $html['page']['#children'] = $content;
-      $html['language_selection_page'] = $language_selection_page;
-      print theme('html', $html);
-      exit;
-  }
+  return $language_selection_page;
 }
