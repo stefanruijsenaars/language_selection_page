@@ -94,7 +94,11 @@ function language_selection_page_language($languages) {
 
   // Don't run this code on the language selection page itself.
   if (request_path() == 'language_selection') {
-    return;
+    $query = drupal_get_query_parameters();
+    if (isset($query['destination'])) {
+      drupal_goto($query['destination']);
+    }
+    drupal_goto('<front>');
   }
 
   if ($blacklist_pages = variable_get('language_selection_page_blacklisted_paths')) {
@@ -133,6 +137,7 @@ function language_selection_page_language($languages) {
   $query['destination'] = request_path() ? request_path() : '<front>';
   $language = $GLOBALS['language'];
 
+  // Return FALSE if we use the block method
   if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     return FALSE;
   }
