@@ -67,7 +67,18 @@ function language_selection_page_admin() {
   $form['language_selection_page_templates']['theme']['content'] = array(
     '#type' => 'textarea',
     '#value' => file_get_contents(drupal_get_path('module', 'language_selection_page') . '/themes/language-selection-page-body.tpl.php'),
-    '#description' => "Copy the content of this file into your theme's template directory. Name it <em>language-selection-page-body.tpl.php</em> and be sure to read the documentation in it."
+    '#description' => 'Copy the content of this file into your theme\'s template directory. Name it <em>language-selection-page-body.tpl.php</em> and be sure to read the documentation in it.'
+  );
+  $form['language_selection_page_templates']['block'] = array(
+    '#title' => 'In a Drupal\'s block: block--language-selection-page--block.tpl.php',
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE
+  );
+  $form['language_selection_page_templates']['block']['content'] = array(
+    '#type' => 'textarea',
+    '#value' => file_get_contents(drupal_get_path('module', 'block') . '/block.tpl.php'),
+    '#description' => 'Copy the content of this file into your theme\'s template directory. Name it <em>block--language-selection-page--block.tpl.php</em>. The variable <em>$language_selection_page</em> is also available. Read the documentation in the <em>language-selection-page-body.tpl.php</em> file.'
   );
 
   drupal_flush_all_caches();

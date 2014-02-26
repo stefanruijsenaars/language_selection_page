@@ -86,6 +86,7 @@ function language_selection_page_language($languages) {
     return;
   }
 
+  // See if we can remove this check and use $language->provider
   $lang = locale_language_from_url($languages);
   if ($lang) {
     return $lang;
@@ -166,7 +167,7 @@ function language_selection_page_preprocess_page(&$vars) {
  */
 function language_selection_page_block_info() {
   return array(
-    'language_selection_page_block' => array(
+    'block' => array(
       'info' => t('Language Selection Block'),
       'cache' => DRUPAL_NO_CACHE
     )
@@ -191,13 +192,24 @@ function language_selection_page_block_view($delta = '') {
   $block = array();
 
   switch ($delta) {
-    case 'language_selection_page_block':
+    case 'block':
       $block['subject'] = '';
       $block['content'] = array(
         '#theme' => 'language_selection_page_body',
         '#language_selection_page' => $data,
+        'blop' => 'blap'
       );
       break;
   }
   return $block;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function language_selection_page_preprocess_block(&$vars) {
+  $block = $vars['block'];
+  if (($block->module == 'language_selection_page') && ($block->delta == 'block')) {
+    $vars['language_selection_page'] = language_selection_page_selection_page_data();
+  }
 }
