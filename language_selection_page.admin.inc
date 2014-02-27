@@ -70,8 +70,7 @@ function language_selection_page_admin() {
       . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
 
-  drupal_html_class(drupal_clean_css_identifier(variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
-  $language_selection_page_template = drupal_html_class(drupal_clean_css_identifier('page--' . variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
+  $language_selection_page_template = drupal_html_class(drupal_clean_css_identifier('html--' . variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
 
   $form['language_selection_page_templates'] = array(
     '#title' => t('Templating system'),
