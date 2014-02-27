@@ -8,8 +8,23 @@
  * Menu callback to display the selection page.
  */
 function language_selection_page_selection_page() {
+  module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
 
+  // Get the query parameters and set the destination to '<front>' if
+  // no destination is set.
+  $query = drupal_get_query_parameters() + array('destination' => '<front>');
+
+  // Go to the destination directly if
+  // a valid language negotiation is detected
+  // or
+  // the destination parameter is the language selection page itself.
+  if (language_selection_page_language_negotiation_is_detected() || $query['destination'] == variable_get('language_selection_page_path', 'language_selection')) {
+    drupal_goto($query['destination']);
+  }
+
+  // Get the array of data.
   $language_selection_page = language_selection_page_selection_page_data();
+  // Convert the array of data in HTML.
   $content = language_selection_page_selection_page_content($language_selection_page);
 
   switch (variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
@@ -24,69 +39,4 @@ function language_selection_page_selection_page() {
       print theme('html', $html);
       exit;
   }
-}
-
-function language_selection_page_selection_page_content($data = array()) {
-  return theme('language_selection_page_body', array ('language_selection_page' => $data));
-}
-
-function language_selection_page_selection_page_data() {
-  $language = $GLOBALS['language'];
-
-  if (!empty($language->provider) && ($language->provider != 'language-default')) {
-    return FALSE;
-  }
-
-  $query = drupal_get_query_parameters();
-  $from = array_key_exists('destination', $query) ? $query['destination'] : request_path();
-  $language_selection_page = array();
-
-  unset($query['q']);
-  unset($query['destination']);
-
-  $language_none_object = new StdClass();
-  $language_none_object->language = LANGUAGE_NONE;
-
-  // prepare information about the link the user is coming from
-  $url = url($from, array('query' => $query, 'language' => $language_none_object));
-  $language_selection_page['from'] = array(
-    'text' => $from,
-    'query' => $query,
-    'url' => $url,
-    'link' => l($url, $from, array('query' => $query, 'language' => $language_none_object))
-  );
-
-  // prepare the links per language
-  $language_enabled = language_list('enabled');
-  foreach ($language_enabled['1'] as $prefix => $language) {
-    // @TODO: is prefix check necessary?
-    if (!$language->prefix) continue;
-
-    $language_selection_page['links'][] = array(
-      'language' => $language,
-      'from' => $from,
-      'query' => $query,
-      'url' => url($from, array('query' => $query, 'language' => $language)),
-      'link' => l(
-        $language->native,
-        $from,
-        array(
-          'query' => $query,
-          'language' => $language,
-          'attributes' => array(
-            'class' => array(
-              'language_selection_page_link',
-              'language_selection_page_link_' . drupal_html_class(drupal_clean_css_identifier($language->language))
-            )
-          )
-        )
-      )
-    );
-  }
-
-  // before we start processing the gathered data, we let other modules alter it
-  // by letting them implement hook_language_selection_page_data_alter(&$data)
-  drupal_alter('language_selection_page_data', $language_selection_page);
-
-  return $language_selection_page;
 }

@@ -1,7 +1,6 @@
 <?php
 
 define('LANGUAGE_NEGOTIATION_SELECTION_PAGE', 'language-selection-page');
-// theme settings - numeric values for D6 upgrade purposes.
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
 define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
@@ -22,7 +21,8 @@ function language_selection_page_menu() {
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
 
-  $items['language_selection'] = array(
+  $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
+  $items[$language_selection_page_url] = array(
     'description' => 'Language selection page',
     'page callback' => 'language_selection_page_selection_page',
     'access arguments' => array('access content'),
@@ -43,7 +43,7 @@ function language_selection_page_menu() {
  */
 function language_selection_page_boot() {
   $path = request_path();
-  if ($path == 'language_selection') {
+  if ($path == variable_get('language_selection_page_path', 'language_selection')) {
     $_POST['globalredirect'] = 'Disabled on language selection page.';
   }
 }
@@ -74,33 +74,43 @@ function language_selection_page_language_negotiation_info() {
 
 /**
  * Language selection callback method.
+ * This should normally return a language code.
+ * Instead of that, we redirect the user to a page with the language links
+ * automatically displayed.
  */
 function language_selection_page_language($languages) {
-  require_once './includes/locale.inc';
-  require_once './includes/path.inc';
-  require_once './includes/common.inc';
-  require_once './includes/unicode.inc';
-
   // Bail out when running tests on commandline.
   if (drupal_is_cli()) {
-    return;
+    return FALSE;
   }
 
-  // See if we can remove this check and use $language->provider
-  $lang = locale_language_from_url($languages);
-  if ($lang) {
-    return $lang;
+  // Don't run this code if we are accessing an image.
+  $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
+  if (strpos(request_path(), $styles_path) === 0) {
+    return FALSE;
   }
 
   // Don't run this code on the language selection page itself.
-  if (request_path() == 'language_selection') {
-    $query = drupal_get_query_parameters();
-    if (isset($query['destination'])) {
-      drupal_goto($query['destination']);
-    }
-    drupal_goto('<front>');
+  require_once './includes/common.inc';
+  if (request_path() == variable_get('language_selection_page_path', 'language_selection')) {
+    return FALSE;
   }
 
+  // @TODO: document this
+  if (!isset($_SERVER['SERVER_ADDR'])) {
+    return FALSE;
+  }
+
+  // Don't run this code if we are accessing another php file than index.php.
+  if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
+    return FALSE;
+  }
+
+  // Check the path against a list of paths where that the module shouldn't run
+  // on.
+  // This list of path is configurable on the admin page.
+  require_once './includes/path.inc';
+  require_once './includes/unicode.inc';
   if ($blacklist_pages = variable_get('language_selection_page_blacklisted_paths')) {
     $blacklist_pages = drupal_strtolower($blacklist_pages);
     $current_path = drupal_strtolower(drupal_get_path_alias(request_path()));
@@ -111,40 +121,24 @@ function language_selection_page_language($languages) {
     }
 
     if (drupal_match_path($current_path, $blacklist_pages)) {
-      return;
+      return FALSE;
     }
   }
 
-  // Don't run this code if we are accessing an image.
-  $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
-  if (strpos(request_path(), $styles_path) === 0) {
-    return;
-  }
-
-  // @TODO: document this
-  if (!isset($_SERVER['SERVER_ADDR'])) {
-    return;
-  }
-
-  // Don't run this code if we are accessing another php file than index.php.
-  if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
-    return;
-  }
-
-  // Redirect to the language selection page,
-  // with the currently requested page as destination.
-  $query = drupal_get_query_parameters();
-  $query['destination'] = request_path() ? request_path() : '<front>';
-  $language = $GLOBALS['language'];
-
-  // Return FALSE if we use the block method
+  // Do not return any language if we use the Drupal's block method
+  // to display the redirection.
+  // Be aware that this will automatically assign the default language.
   if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     return FALSE;
   }
 
-  if (empty($language->provider)) {
-    drupal_goto('language_selection', array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
-  }
+  // Redirect to the language selection page,
+  // with the currently requested page as destination.
+  $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
+  $query = drupal_get_query_parameters();
+  $query['destination'] = request_path() ? request_path() : '<front>';
+
+  drupal_goto($language_selection_page_url, array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
 }
 
 /**
@@ -158,13 +152,6 @@ function language_selection_page_theme() {
       'template' => 'language-selection-page-body',
     )
   );
-}
-
-/**
- * Implements hook_preprocess_page().
- */
-function language_selection_page_preprocess_page(&$vars) {
-  $vars['theme_hook_suggestions'][] = 'page__language_selection';
 }
 
 /**
@@ -190,7 +177,7 @@ function language_selection_page_block_view($delta = '') {
 
   module_load_include('inc', 'language_selection_page', 'language_selection_page.pages');
 
-  if (!($data = language_selection_page_selection_page_data())) {
+  if (language_selection_page_language_negotiation_is_detected()) {
     return array();
   }
 
@@ -201,8 +188,7 @@ function language_selection_page_block_view($delta = '') {
       $block['subject'] = '';
       $block['content'] = array(
         '#theme' => 'language_selection_page_body',
-        '#language_selection_page' => $data,
-        'blop' => 'blap'
+        '#language_selection_page' => language_selection_page_selection_page_data()
       );
       break;
   }

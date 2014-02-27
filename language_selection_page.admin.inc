@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @file
  * The admin page of the language selection page module.
  */
+
 /**
  * The admin page form.
  *
@@ -10,11 +12,38 @@
  */
 function language_selection_page_admin() {
   module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
+  module_load_include('install', 'language_selection_page', 'language_selection_page');
+  require_once(DRUPAL_ROOT.'/includes/install.inc');
+
+  $requirements = language_selection_page_requirements('');
+
+  foreach($requirements as $requirement) {
+    if ($requirement['severity'] == REQUIREMENT_WARNING) {
+      drupal_set_message($requirement['value'], 'warning');
+    }
+    if ($requirement['severity'] == REQUIREMENT_ERROR) {
+      drupal_set_message($requirement['value'], 'error');
+    }
+  }
+
 
   $options = array(
     LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY => 'Template only',
     LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME => t('Template in theme'),
     LANGUAGE_SELECTION_PAGE_BLOCK => 'In a Drupal\'s block',
+  );
+
+  $language_none_object = new StdClass();
+  $language_none_object->language = LANGUAGE_NONE;
+
+  $form['language_selection_page_path'] = array(
+    '#title' => t('Select the path of the Language Selection Page'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('language_selection_page_path', 'language_selection'),
+    '#description' => t('The path of the page displaying the Language Selection Page'),
+    '#required' => TRUE,
+    '#size' => 40,
+    '#field_prefix' => url(NULL, array('absolute' => TRUE, 'language' => $language_none_object)) . (variable_get('clean_url', 0) ? '' : '?q=')
   );
 
   $form['language_selection_page_redirect_type'] = array(
@@ -41,40 +70,49 @@ function language_selection_page_admin() {
       . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
 
+  drupal_html_class(drupal_clean_css_identifier(variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
+  $language_selection_page_template = drupal_html_class(drupal_clean_css_identifier('page--' . variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
+
   $form['language_selection_page_templates'] = array(
     '#title' => t('Templating system'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   );
+
   $form['language_selection_page_templates']['template'] = array(
-    '#title' => 'Template only: html--selection-page.tpl.php',
+    '#title' => 'Template only: ' . $language_selection_page_template,
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   );
+
   $form['language_selection_page_templates']['template']['content'] = array(
     '#type' => 'textarea',
     '#value' => file_get_contents(drupal_get_path('module', 'system') . '/html.tpl.php'),
-    '#description' => 'Copy the content of this file into your theme\'s template directory. Name it <em>html--language-selection.tpl.php</em>, the variable <em>$language_selection_page</em> is also available. Read the documentation in the <em>language-selection-page-body.tpl.php</em> file.'
+    '#description' => t("Copy the content of this file into your theme's template directory. Name it <em>@language_selection_page_template</em>, the variable <em>\$language_selection_page</em> is also available. Read the documentation in the <em>language-selection-page-body.tpl.php</em> file.", array('@language_selection_page_template' => $language_selection_page_template))
   );
+
   $form['language_selection_page_templates']['theme'] = array(
-    '#title' => 'Template in theme: language-selection-page-body.tpl.php',
+    '#title' => 'Template in theme: language-selection-page-body.tpl.php or ',
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   );
+
   $form['language_selection_page_templates']['theme']['content'] = array(
     '#type' => 'textarea',
     '#value' => file_get_contents(drupal_get_path('module', 'language_selection_page') . '/themes/language-selection-page-body.tpl.php'),
     '#description' => 'Copy the content of this file into your theme\'s template directory. Name it <em>language-selection-page-body.tpl.php</em> and be sure to read the documentation in it.'
   );
+
   $form['language_selection_page_templates']['block'] = array(
     '#title' => 'In a Drupal\'s block: block--language-selection-page--block.tpl.php',
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   );
+
   $form['language_selection_page_templates']['block']['content'] = array(
     '#type' => 'textarea',
     '#value' => file_get_contents(drupal_get_path('module', 'block') . '/block.tpl.php'),
@@ -83,5 +121,24 @@ function language_selection_page_admin() {
 
   drupal_flush_all_caches();
 
+  $form['#validate'][] = 'language_selection_page_admin_validate';
+
   return system_settings_form($form);
+}
+
+function language_selection_page_admin_validate($form, &$form_state) {
+
+  $values = $form_state['values'];
+
+  if (drupal_strlen($values['language_selection_page_path']) > 32) {
+    form_set_error('language_selection_page_path', 'The path is invalid. Please use a path with 32 characters or less.');
+  }
+
+  $candidate_path = drupal_html_class(drupal_clean_css_identifier($values['language_selection_page_path']));
+  $candidate_path = preg_replace('/[^a-z0-9_-]+/', '', $candidate_path);
+
+  // validate the string
+  if (preg_match('/[^\w.-]/', $values['language_selection_page_path'])){
+    form_set_error('language_selection_page_path', 'The path is invalid. Please use a valid path such this example: ' . $candidate_path);
+  }
 }
