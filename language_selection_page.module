@@ -21,15 +21,16 @@ function language_selection_page_menu() {
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
   );
 
-  $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
-  $items[$language_selection_page_url] = array(
-    'description' => 'Language selection page',
-    'page callback' => 'language_selection_page_selection_page',
-    'access arguments' => array('access content'),
-    'file' => 'language_selection_page.pages.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-
+  if (LANGUAGE_SELECTION_PAGE_BLOCK != variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+    $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
+    $items[$language_selection_page_url] = array(
+      'description' => 'Language selection page',
+      'page callback' => 'language_selection_page_selection_page',
+      'access arguments' => array('access content'),
+      'file' => 'language_selection_page.pages.inc',
+      'type' => MENU_NORMAL_ITEM,
+    );
+  }
   return $items;
 }
 
@@ -166,12 +167,16 @@ function language_selection_page_theme() {
  * Implements hook_block_info().
  */
 function language_selection_page_block_info() {
-  return array(
-    'block' => array(
-      'info' => t('Language Selection Block'),
-      'cache' => DRUPAL_NO_CACHE
-    )
-  );
+  $blocks = array();
+  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+    $blocks[] = array(
+      'block' => array(
+        'info' => t('Language Selection Block'),
+        'cache' => DRUPAL_NO_CACHE
+      )
+    );
+  }
+  return $blocks;
 }
 
 /**
