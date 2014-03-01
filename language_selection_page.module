@@ -43,7 +43,8 @@ function language_selection_page_menu() {
  */
 function language_selection_page_boot() {
   $path = request_path();
-  if ($path == variable_get('language_selection_page_path', 'language_selection')) {
+
+  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY) || $path == variable_get('language_selection_page_path', 'language_selection')) {
     $_POST['globalredirect'] = 'Disabled on language selection page.';
   }
 }
@@ -92,7 +93,11 @@ function language_selection_page_language($languages) {
 
   // Don't run this code on the language selection page itself.
   require_once './includes/common.inc';
-  if (request_path() == variable_get('language_selection_page_path', 'language_selection')) {
+  if (language_selection_page_request_path() == variable_get('language_selection_page_path', 'language_selection')) {
+    $query = drupal_get_query_parameters();
+    if (!isset($query['destination']) || $query['destination'] == variable_get('language_selection_page_path', 'language_selection')) {
+      header("Location: /");
+    }
     return FALSE;
   }
 
@@ -134,11 +139,14 @@ function language_selection_page_language($languages) {
 
   // Redirect to the language selection page,
   // with the currently requested page as destination.
+
   $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
   $query = drupal_get_query_parameters();
   $query['destination'] = request_path() ? request_path() : '<front>';
 
-  drupal_goto($language_selection_page_url, array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
+  if (empty($GLOBALS['language']->provider)) {
+    drupal_goto($language_selection_page_url, array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
+  }
 }
 
 /**
@@ -175,9 +183,9 @@ function language_selection_page_block_view($delta = '') {
     return array();
   }
 
-  module_load_include('inc', 'language_selection_page', 'language_selection_page.pages');
+  module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
 
-  if (language_selection_page_language_negotiation_is_detected()) {
+  if (language_selection_page_is_negotiation_detected()) {
     return array();
   }
 
@@ -203,4 +211,8 @@ function language_selection_page_preprocess_block(&$vars) {
   if (($block->module == 'language_selection_page') && ($block->delta == 'block')) {
     $vars['language_selection_page'] = language_selection_page_selection_page_data();
   }
+}
+
+function language_selection_page_request_path() {
+  return array_pop(explode('/', request_path()));
 }

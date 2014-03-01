@@ -10,15 +10,12 @@
 function language_selection_page_selection_page() {
   module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
 
-  // Get the query parameters and set the destination to '<front>' if
-  // no destination is set.
-  $query = drupal_get_query_parameters() + array('destination' => '<front>');
-
   // Go to the destination directly if
   // a valid language negotiation is detected
-  // or
-  // the destination parameter is the language selection page itself.
-  if (language_selection_page_language_negotiation_is_detected() || $query['destination'] == variable_get('language_selection_page_path', 'language_selection')) {
+  if (language_selection_page_is_negotiation_detected()) {
+    // Get the query parameters and set the destination to '<front>' if
+    // no destination is set.
+    $query = drupal_get_query_parameters() + array('destination' => '<front>');
     drupal_goto($query['destination']);
   }
 
@@ -39,4 +36,24 @@ function language_selection_page_selection_page() {
       print theme('html', $html);
       exit;
   }
+}
+
+
+function language_selection_page_is_valid_request() {
+  $query = drupal_get_query_parameters();
+
+  //$language = $GLOBALS['language'];
+  $language_selection_page_path = variable_get('language_selection_page_path', 'language_selection');
+  $request = array_pop(explode('/', request_path()));
+
+  if (
+    $request == $language_selection_page_path &&
+    isset($query['destination']) &&
+    !empty($query['destination']) &&
+    $query['destination'] != $language_selection_page_path
+  ) {
+    return TRUE;
+  }
+
+  return FALSE;
 }

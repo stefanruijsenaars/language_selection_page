@@ -15,7 +15,7 @@ function _language_selection_page_check_language_count() {
   return array('db' => count($language_count[1]), 'vars' => variable_get('language_count', 1));
 }
 
-function language_selection_page_language_negotiation_is_detected() {
+function language_selection_page_is_negotiation_detected() {
   if (!isset($GLOBALS['language']->provider)) {
     return FALSE;
   }
