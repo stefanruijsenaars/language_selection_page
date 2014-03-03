@@ -169,11 +169,9 @@ function language_selection_page_theme() {
 function language_selection_page_block_info() {
   $blocks = array();
   if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
-    $blocks[] = array(
-      'block' => array(
-        'info' => t('Language Selection Block'),
-        'cache' => DRUPAL_NO_CACHE
-      )
+    $blocks['block'] = array(
+      'info' => t('Language Selection Block'),
+      'cache' => DRUPAL_NO_CACHE
     );
   }
   return $blocks;
