@@ -217,5 +217,6 @@ function language_selection_page_preprocess_block(&$vars) {
 }
 
 function language_selection_page_request_path() {
-  return array_pop(explode('/', request_path()));
+  $path = explode('/', request_path());
+  return array_pop($path);
 }
