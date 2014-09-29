@@ -43,7 +43,7 @@ function language_selection_page_menu() {
  * See https://drupal.org/node/1438584#comment-6167916
  */
 function language_selection_page_boot() {
-  $path = request_path();
+  $path = language_selection_page_request_path();
 
   if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY) || $path == variable_get('language_selection_page_path', 'language_selection')) {
     $_POST['globalredirect'] = 'Disabled on language selection page.';
@@ -86,9 +86,20 @@ function language_selection_page_language($languages) {
     return FALSE;
   }
 
-  // Don't run this code if we are accessing an image.
-  $styles_path = variable_get('file_public_path', conf_path() . '/files') . '/styles/';
-  if (strpos(request_path(), $styles_path) === 0) {
+  // Get the current request path.
+  $request_path = request_path();
+
+  // Don't run this code if we are accessing anything in the files path.
+  $public_files_path = variable_get('file_public_path', conf_path() . '/files');
+  if (strpos($request_path, $public_files_path) === 0) {
+    return FALSE;
+  }
+
+  if (strpos($request_path, 'cdn/farfuture') === 0) {
+    return FALSE;
+  }
+
+  if (strpos($request_path, 'httprl_async_function_callback') === 0) {
     return FALSE;
   }
 
@@ -119,7 +130,7 @@ function language_selection_page_language($languages) {
   require_once './includes/unicode.inc';
   if ($blacklist_pages = variable_get('language_selection_page_blacklisted_paths')) {
     $blacklist_pages = drupal_strtolower($blacklist_pages);
-    $current_path = drupal_strtolower(drupal_get_path_alias(request_path()));
+    $current_path = drupal_strtolower(drupal_get_path_alias($request_path));
     // In order to be able to blacklist pages like 'update.php',
     // if current_path is empty, the php REQUEST_URI will be match.
     if (empty($current_path)) {
@@ -143,7 +154,7 @@ function language_selection_page_language($languages) {
 
   $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
   $query = drupal_get_query_parameters();
-  $query['destination'] = request_path() ? request_path() : '<front>';
+  $query['destination'] = $request_path ? $request_path : '<front>';
 
   if (empty($GLOBALS['language']->provider)) {
     drupal_goto($language_selection_page_url, array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
