@@ -10,13 +10,23 @@
 function language_selection_page_selection_page() {
   module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
 
-  // Go to the destination directly if
-  // a valid language negotiation is detected
-  if (language_selection_page_is_negotiation_detected()) {
-    // Get the query parameters and set the destination to '<front>' if
-    // no destination is set.
-    $query = drupal_get_query_parameters() + array('destination' => '<front>');
-    drupal_goto($query['destination']);
+  if (variable_get('language_selection_page_js_cookie_redirect', FALSE)) {
+    // This adds a Javascript-based automatic redirect based on language in the
+    // user's language cookie. This may be useful for sites using page caching
+    // such as Varnish or Boost.
+    $param = variable_get('language_cookie_param', 'language');
+    drupal_add_js(array('language_selection_page' => array('cookieName' => $param)), 'setting');
+    drupal_add_js(drupal_get_path('module', 'language_selection_page') . '/themes/js/cookie_redirect.js');
+  }
+  else {
+    // Go to the destination directly if
+    // a valid language negotiation is detected
+    if (language_selection_page_is_negotiation_detected()) {
+      // Get the query parameters and set the destination to '<front>' if
+      // no destination is set.
+      $query = drupal_get_query_parameters() + array('destination' => '<front>');
+      drupal_goto($query['destination']);
+    }
   }
 
   // Get the array of data.

@@ -70,6 +70,15 @@ function language_selection_page_admin() {
       . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
 
+  if (module_exists('language_cookie')) {
+    $form['language_selection_page_js_cookie_redirect'] = array(
+      '#title' => t('Enable Javascript-based language cookie redirect.'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('language_selection_page_js_cookie_redirect', FALSE),
+      '#description' => t('Redirect requests to the language selection page using the language saved in the language cookie of the visitor. This may be useful if you use page caching systems such as Boost or Varnish.'),
+    );
+  }
+
   $language_selection_page_template = drupal_html_class(drupal_clean_css_identifier('html--' . variable_get('language_selection_page_path', 'language_selection'))).'.tpl.php';
 
   $form['language_selection_page_templates'] = array(
