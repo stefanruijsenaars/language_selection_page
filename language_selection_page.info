@@ -3,3 +3,4 @@ description = "Provides an additional language negotiation fallback using a sele
 name = "Language Selection Page"
 package = Multilanguage
 dependencies[] = locale
+configure = admin/config/regional/language/configure/selection_page
