@@ -86,6 +86,11 @@ function language_selection_page_language($languages) {
     return FALSE;
   }
 
+  // Bail out when handling AJAX requests.
+  if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    return FALSE;
+  }
+
   // Get the current request path.
   $request_path = request_path();
 
