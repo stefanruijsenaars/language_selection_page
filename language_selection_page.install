@@ -4,7 +4,7 @@
  * Module installation code
  */
 
-/*
+/**
  * Implements hook_requirements().
  */
 function language_selection_page_requirements($phase) {
@@ -62,8 +62,6 @@ function language_selection_page_requirements($phase) {
 
 /**
  * Implements hook_install().
- *
- * @return void
  */
 function language_selection_page_install() {
   $default_blacklist_paths = array('admin', 'user', 'admin/*', 'admin*', 'node/add/*', 'node/*/edit');
@@ -74,8 +72,6 @@ function language_selection_page_install() {
 
 /**
  * Implements hook_uninstall().
- *
- * @return void
  */
 function language_selection_page_uninstall() {
   variable_del('language_selection_page_blacklisted_paths');
