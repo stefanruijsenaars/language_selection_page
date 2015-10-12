@@ -25,15 +25,17 @@
 
 <div class="language_selection_page_body">
   <div class="language_selection_page_body_inner">
-    <p>Hello,</p>
-    <p>You are coming from <?php print $language_selection_page['from']['link']; ?></p>
-    <p>You should go to:</p>
+    <p>No language has been detected and you are coming from <?php print $language_selection_page['from']['link']; ?></p>
+
+    <p>You should go to the page in:</p>
 
     <ul>
     <?php foreach($language_selection_page['links'] as $data): ?>
       <li><?php echo $data['link']; ?></li>
     <?php endforeach; ?>
     </ul>
+
+    <p>This page is the default page of the module Language Selection Page, you can <a href="<?php print url('admin/config/regional/language/configure/selection_page'); ?>">configure the module</a> to alter its behavior.</p>
 
   </div>
 </div>

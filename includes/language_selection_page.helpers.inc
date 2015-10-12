@@ -33,11 +33,12 @@ function language_selection_page_selection_page_content($data = array()) {
 
 function language_selection_page_selection_page_data() {
   $query = drupal_get_query_parameters();
-  $from = array_key_exists('destination', $query) ? $query['destination'] : request_path();
+  $path = language_selection_page_request_path();
+  $from = isset($path[1]) ? implode('/', array_slice($path, 1)) : '<front>';
+
   $language_selection_page = array();
 
   unset($query['q']);
-  unset($query['destination']);
 
   $language_none_object = new StdClass();
   $language_none_object->language = LANGUAGE_NONE;

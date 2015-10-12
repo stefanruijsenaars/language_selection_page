@@ -45,7 +45,7 @@ function language_selection_page_menu() {
 function language_selection_page_boot() {
   $path = language_selection_page_request_path();
 
-  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY) || $path == variable_get('language_selection_page_path', 'language_selection')) {
+  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY) || $path[0] == variable_get('language_selection_page_path', 'language_selection')) {
     $_POST['globalredirect'] = 'Disabled on language selection page.';
   }
 }
@@ -91,8 +91,8 @@ function language_selection_page_language($languages) {
     return FALSE;
   }
 
-  // Get the current request path.
-  $request_path = request_path();
+  $path = language_selection_page_request_path();
+  $request_path = implode('/', $path);
 
   // Don't run this code if we are accessing anything in the files path.
   $public_files_path = variable_get('file_public_path', conf_path() . '/files');
@@ -110,11 +110,7 @@ function language_selection_page_language($languages) {
 
   // Don't run this code on the language selection page itself.
   require_once './includes/common.inc';
-  if (language_selection_page_request_path() == variable_get('language_selection_page_path', 'language_selection')) {
-    $query = drupal_get_query_parameters();
-    if (!isset($query['destination']) || $query['destination'] == variable_get('language_selection_page_path', 'language_selection')) {
-      header("Location: /");
-    }
+  if ($path[0] === variable_get('language_selection_page_path', 'language_selection')) {
     return FALSE;
   }
 
@@ -124,7 +120,7 @@ function language_selection_page_language($languages) {
   }
 
   // Don't run this code if we are accessing another php file than index.php.
-  if ($_SERVER['SCRIPT_NAME'] != $GLOBALS['base_path'] . 'index.php') {
+  if ($_SERVER['SCRIPT_NAME'] !== $GLOBALS['base_path'] . 'index.php') {
     return FALSE;
   }
 
@@ -150,19 +146,17 @@ function language_selection_page_language($languages) {
   // Do not return any language if we use the Drupal's block method
   // to display the redirection.
   // Be aware that this will automatically assign the default language.
-  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+  if (LANGUAGE_SELECTION_PAGE_BLOCK === variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     return FALSE;
   }
 
-  // Redirect to the language selection page,
-  // with the currently requested page as destination.
-
-  $language_selection_page_url = variable_get('language_selection_page_path', 'language_selection');
-  $query = drupal_get_query_parameters();
-  $query['destination'] = $request_path ? $request_path : '<front>';
+  // Redirect to the language selection page properly.
+  $language_selection_page_url_elements[] = variable_get('language_selection_page_path', 'language_selection');
+  $language_selection_page_url_elements[] = $request_path ? $request_path : NULL;
+  $language_selection_page_url = trim(implode('/', $language_selection_page_url_elements), '/');
 
   if (empty($GLOBALS['language']->provider)) {
-    drupal_goto($language_selection_page_url, array('query' => $query, 'absolute' => FALSE, 'language' => LANGUAGE_NONE));
+    drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));
   }
 }
 
@@ -184,12 +178,14 @@ function language_selection_page_theme() {
  */
 function language_selection_page_block_info() {
   $blocks = array();
-  if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+
+  if (LANGUAGE_SELECTION_PAGE_BLOCK === variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     $blocks['block'] = array(
       'info' => t('Language Selection Block'),
       'cache' => DRUPAL_NO_CACHE
     );
   }
+
   return $blocks;
 }
 
@@ -197,13 +193,11 @@ function language_selection_page_block_info() {
  * Implements hook_block_view().
  */
 function language_selection_page_block_view($delta = '') {
-
-  if (LANGUAGE_SELECTION_PAGE_BLOCK != variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
+  if (LANGUAGE_SELECTION_PAGE_BLOCK !== variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     return array();
   }
 
   module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
-
   if (language_selection_page_is_negotiation_detected()) {
     return array();
   }
@@ -219,6 +213,7 @@ function language_selection_page_block_view($delta = '') {
       );
       break;
   }
+
   return $block;
 }
 
@@ -233,6 +228,7 @@ function language_selection_page_preprocess_block(&$vars) {
 }
 
 function language_selection_page_request_path() {
-  $path = explode('/', request_path());
-  return array_pop($path);
+  $request_uri = trim($_SERVER['REQUEST_URI'], '/');
+  $path = explode('/', $request_uri);
+  return (array) $path;
 }
