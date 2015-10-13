@@ -8,6 +8,15 @@
  * Menu callback to display the selection page.
  */
 function language_selection_page_selection_page() {
+  $arguments = func_get_args();
+  $destination = isset($arguments[0]) ? implode('/', $arguments) : '<front>';
+
+  // If the destination passed doesn't exist or is external, set it to the
+  // homepage.
+  if (!drupal_valid_path($destination) || url_is_external($destination)) {
+    $destination = '<front>';
+  }
+
   if (variable_get('language_selection_page_js_cookie_redirect', FALSE)) {
     // This adds a Javascript-based automatic redirect based on language in the
     // user's language cookie. This may be useful for sites using page caching
@@ -18,24 +27,13 @@ function language_selection_page_selection_page() {
   }
   else {
     module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
-    // Go to the destination directly
-    // if a valid language negotiation is detected.
-    // If a valid language negotiation exists, it means that the url has
-    // prefix.
-    // Example of path: [lang_prefix]/language_selection/[destination_segment_1]/[destination_segment_2]
     if (language_selection_page_is_negotiation_detected()) {
-      // To get the destination properly we have to implode the slice of the array array with an offset of 2.
-      // If no destination is detected, we redirect the user to the homepage, drupal_goto() will automatically
-      // add the language properly.
-      $path = language_selection_page_request_path(2);
-      $destination =  isset($path[0]) ? implode('/', $path) : '<front>';
-
       drupal_goto($destination);
     }
   }
 
   // Get the array of data.
-  $language_selection_page = language_selection_page_selection_page_data();
+  $language_selection_page = language_selection_page_selection_page_data($destination);
 
   // Convert the array of data in HTML.
   $content = theme(

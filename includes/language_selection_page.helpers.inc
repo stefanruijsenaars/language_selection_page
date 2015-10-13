@@ -38,16 +38,18 @@ function language_selection_page_is_negotiation_detected() {
  *
  * Alter it with an alter hook: hook_language_selection_page_data_alter().
  *
+ * @param string $from
+ *   The path the user is coming from. This is the path the user will be
+ *   proposed to go in different languages.
+ *
  * @return array
  */
-function language_selection_page_selection_page_data() {
+function language_selection_page_selection_page_data($from = '<front>') {
   $language_selection_page = array();
   $language_none_object = new StdClass();
   $language_none_object->language = LANGUAGE_NONE;
 
   $query = drupal_get_query_parameters();
-  $path = language_selection_page_request_path(1);
-  $from = isset($path[0]) ? implode('/', $path) : '<front>';
   $url = url($from, array('query' => $query, 'language' => $language_none_object));
 
   unset($query['q']);

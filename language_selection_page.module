@@ -43,7 +43,7 @@ function language_selection_page_menu() {
  * See https://drupal.org/node/1438584#comment-6167916
  */
 function language_selection_page_boot() {
-  $path = language_selection_page_request_path();
+  $path = array_slice(explode('/', trim($_SERVER['REQUEST_URI'], '/')), 0);
 
   if (LANGUAGE_SELECTION_PAGE_BLOCK == variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY) || $path[0] == variable_get('language_selection_page_path', 'language_selection')) {
     $_POST['globalredirect'] = 'Disabled on language selection page.';
@@ -97,7 +97,7 @@ function language_selection_page_language($languages) {
     return FALSE;
   }
 
-  $path = language_selection_page_request_path();
+  $path = array_slice(explode('/', trim($_SERVER['REQUEST_URI'], '/')), 0);
   $request_path = implode('/', $path);
 
   // Don't run this code if we are accessing anything in the files path.
@@ -233,22 +233,4 @@ function language_selection_page_preprocess_block(&$vars) {
   if (($block->module == 'language_selection_page') && ($block->delta == 'block')) {
     $vars['language_selection_page'] = language_selection_page_selection_page_data();
   }
-}
-
-/**
- * Returns current path segments.
- *
- * This function should be in includes/language_selection_page.helpers.inc but
- * since we are using hook_boot(), module_load_include() is not available yet,
- * so I keep it in this file.
- *
- * @param int $offset
- *   Offset used to get a slice of the returning array. Set to 0 by default,
- *   it means that the full array is returned.
- *
- * @return array
- *   The path segments. If an offset is set, it will return a slice of it.
- */
-function language_selection_page_request_path($offset = 0) {
-  return array_slice(explode('/', trim($_SERVER['REQUEST_URI'], '/')), $offset);
 }
