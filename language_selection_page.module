@@ -54,31 +54,37 @@ function language_selection_page_boot() {
  * Implements hook_language_negotiation_info().
  */
 function language_selection_page_language_negotiation_info() {
-  $language_providers[LANGUAGE_NEGOTIATION_SELECTION_PAGE] = array(
-    'types' => array(
-      LANGUAGE_TYPE_CONTENT,
-      LANGUAGE_TYPE_INTERFACE,
-      LANGUAGE_TYPE_URL,
-    ),
-    'callbacks' => array(
-      'language' => 'language_selection_page_language',
-      'switcher' => 'locale_language_switcher_url',
-      'url_rewrite' => 'locale_language_url_rewrite_url',
-    ),
-    'file' => drupal_get_path('module', 'language_selection_page') . '/language_selection_page.module',
-    'weight' => 50,
-    'name' => t('Selection Page'),
-    'description' => t('Show a language selection page to the visitor for making a language choice.'),
-    'config' => 'admin/config/regional/language/configure/selection_page',
+  return array(
+    LANGUAGE_NEGOTIATION_SELECTION_PAGE => array(
+      'types' => array(
+        LANGUAGE_TYPE_CONTENT,
+        LANGUAGE_TYPE_INTERFACE,
+        LANGUAGE_TYPE_URL,
+      ),
+      'callbacks' => array(
+        'language' => 'language_selection_page_language',
+        'switcher' => 'locale_language_switcher_url',
+        'url_rewrite' => 'locale_language_url_rewrite_url',
+      ),
+      'file' => drupal_get_path('module', 'language_selection_page') . '/language_selection_page.module',
+      'weight' => 50,
+      'name' => t('Selection Page'),
+      'description' => t('Show a language selection page to the visitor for making a language choice.'),
+      'config' => 'admin/config/regional/language/configure/selection_page',
+    )
   );
-  return $language_providers;
 }
 
 /**
  * Language selection callback method.
- * This should normally return a language code.
- * Instead of that, we redirect the user to a page with the language links
- * automatically displayed.
+ *
+ * This callback is called prior calling the callback defined in hook_menu.
+ * It should normally return a language code but instead of that, we redirect
+ * the user to the language selection page.
+ *
+ * This function is not a hook but a callback and I think it has this place in
+ * the .module file.
+ *
  */
 function language_selection_page_language($languages) {
   // Bail out when running tests on commandline.
@@ -158,6 +164,8 @@ function language_selection_page_language($languages) {
   if (empty($GLOBALS['language']->provider)) {
     drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));
   }
+
+  return FALSE;
 }
 
 /**
@@ -227,8 +235,20 @@ function language_selection_page_preprocess_block(&$vars) {
   }
 }
 
-function language_selection_page_request_path() {
-  $request_uri = trim($_SERVER['REQUEST_URI'], '/');
-  $path = explode('/', $request_uri);
-  return (array) $path;
+/**
+ * Returns current path segments.
+ *
+ * This function should be in includes/language_selection_page.helpers.inc but
+ * since we are using hook_boot(), module_load_include() is not available yet,
+ * so I keep it in this file.
+ *
+ * @param int $offset
+ *   Offset used to get a slice of the returning array. Set to 0 by default,
+ *   it means that the full array is returned.
+ *
+ * @return array
+ *   The path segments. If an offset is set, it will return a slice of it.
+ */
+function language_selection_page_request_path($offset = 0) {
+  return array_slice(explode('/', trim($_SERVER['REQUEST_URI'], '/')), $offset);
 }

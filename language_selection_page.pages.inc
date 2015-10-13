@@ -19,10 +19,16 @@ function language_selection_page_selection_page() {
   else {
     module_load_include('inc', 'language_selection_page', 'includes/language_selection_page.helpers');
     // Go to the destination directly
-    // if a valid language negotiation is detected
+    // if a valid language negotiation is detected.
+    // If a valid language negotiation exists, it means that the url has
+    // prefix.
+    // Example of path: [lang_prefix]/language_selection/[destination_segment_1]/[destination_segment_2]
     if (language_selection_page_is_negotiation_detected()) {
-      $path = language_selection_page_request_path();
-      $destination =  isset($path[2]) ? implode('/', array_slice($path, 2)) : '<front>';
+      // To get the destination properly we have to implode the slice of the array array with an offset of 2.
+      // If no destination is detected, we redirect the user to the homepage, drupal_goto() will automatically
+      // add the language properly.
+      $path = language_selection_page_request_path(2);
+      $destination =  isset($path[0]) ? implode('/', $path) : '<front>';
 
       drupal_goto($destination);
     }
@@ -30,8 +36,14 @@ function language_selection_page_selection_page() {
 
   // Get the array of data.
   $language_selection_page = language_selection_page_selection_page_data();
+
   // Convert the array of data in HTML.
-  $content = language_selection_page_selection_page_content($language_selection_page);
+  $content = theme(
+    'language_selection_page_body',
+    array(
+      'language_selection_page' => $language_selection_page
+    )
+  );
 
   switch (variable_get('language_selection_page_redirect_type', LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY)) {
     case LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME:
@@ -43,6 +55,6 @@ function language_selection_page_selection_page() {
       $html['page']['#children'] = $content;
       $html['language_selection_page'] = $language_selection_page;
       print theme('html', $html);
-      exit;
+      drupal_exit();
   }
 }

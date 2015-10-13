@@ -13,7 +13,7 @@ function language_selection_page_requirements($phase) {
 
   $requirements = array();
   $lang_list = language_list('enabled');
-  $language_count = _language_selection_page_check_language_count();
+  $language_count = language_selection_page_check_language_count();
 
   if ($language_count['db'] != $language_count['vars']) {
     $requirements['language_selection_page'] = array(

@@ -9,12 +9,18 @@
  *
  * @return array
  */
-function _language_selection_page_check_language_count() {
+function language_selection_page_check_language_count() {
   // We cannot rely on the variables from Features or system.
   $language_count = language_list('enabled');
   return array('db' => count($language_count[1]), 'vars' => variable_get('language_count', 1));
 }
 
+/**
+ * Callback to check if a language has been detected.
+ *
+ * @return bool|mixed
+ *   If no language is detected returns FALSE or the language object.
+ */
 function language_selection_page_is_negotiation_detected() {
   if (!isset($GLOBALS['language']->provider)) {
     return FALSE;
@@ -27,24 +33,26 @@ function language_selection_page_is_negotiation_detected() {
   return $GLOBALS['language'];
 }
 
-function language_selection_page_selection_page_content($data = array()) {
-  return theme('language_selection_page_body', array ('language_selection_page' => $data));
-}
-
+/**
+ * Callback that fills an array for the template.
+ *
+ * Alter it with an alter hook: hook_language_selection_page_data_alter().
+ *
+ * @return array
+ */
 function language_selection_page_selection_page_data() {
-  $query = drupal_get_query_parameters();
-  $path = language_selection_page_request_path();
-  $from = isset($path[1]) ? implode('/', array_slice($path, 1)) : '<front>';
-
   $language_selection_page = array();
-
-  unset($query['q']);
-
   $language_none_object = new StdClass();
   $language_none_object->language = LANGUAGE_NONE;
 
-  // prepare information about the link the user is coming from
+  $query = drupal_get_query_parameters();
+  $path = language_selection_page_request_path(1);
+  $from = isset($path[0]) ? implode('/', $path) : '<front>';
   $url = url($from, array('query' => $query, 'language' => $language_none_object));
+
+  unset($query['q']);
+
+  // prepare information about the link the user is coming from
   $language_selection_page['from'] = array(
     'text' => $from,
     'query' => $query,
@@ -86,4 +94,3 @@ function language_selection_page_selection_page_data() {
 
   return $language_selection_page;
 }
-
