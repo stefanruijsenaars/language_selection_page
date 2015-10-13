@@ -82,7 +82,7 @@ function language_selection_page_language_negotiation_info() {
  * It should normally return a language code but instead of that, we redirect
  * the user to the language selection page.
  *
- * This function is not a hook but a callback and I think it has this place in
+ * This function is not a hook but a callback and I think it has its place in
  * the .module file.
  *
  */
@@ -141,7 +141,7 @@ function language_selection_page_language($languages) {
     // In order to be able to blacklist pages like 'update.php',
     // if current_path is empty, the php REQUEST_URI will be match.
     if (empty($current_path)) {
-      $current_path = ltrim($_SERVER["REQUEST_URI"], '/');
+      $current_path = ltrim($_SERVER['REQUEST_URI'], '/');
     }
 
     if (drupal_match_path($current_path, $blacklist_pages)) {
@@ -230,6 +230,7 @@ function language_selection_page_block_view($delta = '') {
  */
 function language_selection_page_preprocess_block(&$vars) {
   $block = $vars['block'];
+
   if (($block->module == 'language_selection_page') && ($block->delta == 'block')) {
     $vars['language_selection_page'] = language_selection_page_selection_page_data();
   }

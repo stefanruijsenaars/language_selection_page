@@ -14,7 +14,9 @@ function language_selection_page_selection_page() {
   // If the destination passed doesn't exist or is external, set it to the
   // homepage.
   if (!drupal_valid_path($destination) || url_is_external($destination)) {
-    $destination = '<front>';
+    if (!drupal_lookup_path('source', $destination)) {
+      $destination = '<front>';
+    }
   }
 
   if (variable_get('language_selection_page_js_cookie_redirect', FALSE)) {
