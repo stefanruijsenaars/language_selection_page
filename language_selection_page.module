@@ -149,6 +149,19 @@ function language_selection_page_language($languages) {
     }
   }
 
+  // Check if the ignore "language neutral" option is checked.
+  // If so, we will check if the entity language is set to LANGUAGE_NONE.
+  // Checking also for content type translation options since node can have the
+  // default language set instead of LANGUAGE_NONE.
+  if (variable_get('language_selection_page_ignore_language_neutral', FALSE)) {
+    require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+    $entity = menu_get_object();
+    if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type,'') === '0')) {
+      return FALSE;
+    }
+  }
+
   // Do not return any language if we use the Drupal's block method
   // to display the redirection.
   // Be aware that this will automatically assign the default language.

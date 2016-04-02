@@ -70,6 +70,13 @@ function language_selection_page_admin() {
       . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
 
+  $form['language_selection_page_ignore_language_neutral'] = array(
+    '#title' => t('Ignore language neutral entities and content types.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('language_selection_page_ignore_language_neutral', FALSE),
+    '#description' => t("Doesn't redirect to the language selection page if the entity is language neutral or if the content doesn't have multilingual support."),
+  );
+
   if (module_exists('language_cookie')) {
     $form['language_selection_page_js_cookie_redirect'] = array(
       '#title' => t('Enable Javascript-based language cookie redirect.'),
