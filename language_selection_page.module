@@ -5,6 +5,8 @@ define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
 define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
 define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
 
+require_once DRUPAL_ROOT . '/includes/locale.inc';
+
 /**
  * Implements hook_menu().
  */
