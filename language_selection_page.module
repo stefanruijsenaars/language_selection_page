@@ -19,6 +19,7 @@ function language_selection_page_theme($existing, $type, $theme, $path) {
       'template' => 'language-selection-page-content',
       'variables' => [
         'destination' => NULL,
+        'configure_url' => \Drupal\Core\Url::fromRoute('language.negotiation')
       ],
     ],
   ];
