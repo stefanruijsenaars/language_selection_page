@@ -5,3 +5,6 @@ language.negotiation_selection_page:
     _title: 'Language Selection Page detection configuration'
   requirements:
     _permission: 'administer languages'
+
+route_callbacks:
+ - '\Drupal\language_selection_page\Routing\RouteController::routes'

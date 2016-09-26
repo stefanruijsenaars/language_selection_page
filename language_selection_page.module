@@ -1,1 +1,25 @@
 <?php
+
+/**
+ * Implements hook_theme().
+ */
+function language_selection_page_theme($existing, $type, $theme, $path) {
+  return [
+    'language_selection_page' => [
+      'render element' => 'custom_page',
+      'path' => $path . '/templates',
+      'template' => 'language-selection-page',
+      'variables' => [
+        'var1' => 'default value for var1',
+      ],
+    ],
+    'language_selection_page_content' => [
+      'render element' => 'custom_page',
+      'path' => $path . '/templates',
+      'template' => 'language-selection-page-content',
+      'variables' => [
+        'var1' => 'page content',
+      ],
+    ],
+  ];
+}

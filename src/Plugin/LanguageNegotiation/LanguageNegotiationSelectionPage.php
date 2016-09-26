@@ -9,6 +9,7 @@ use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -27,6 +28,11 @@ use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
  */
 class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase implements ContainerFactoryPluginInterface {
 
+  /*
+define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
+define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
+define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
+  */
 
   /**
    * The language negotiation method id.
@@ -99,15 +105,99 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
    * {@inheritdoc}
    */
   public function getLangcode(Request $request = NULL) {
-    $langcode = NULL;
+    $languages = $this->languageManager->getLanguages();
+    $config = \Drupal::config('language_selection_page.negotiation');
 
-    // User preference (only for administrators).
-    if ($this->currentUser->hasPermission('access administration pages') && ($preferred_admin_langcode = $this->currentUser->getPreferredAdminLangcode(FALSE)) && $this->isAdminPath($request)) {
-      $langcode = $preferred_admin_langcode;
+    // Bail out when running tests on commandline.
+    if (PHP_SAPI === 'cli') {
+      return FALSE;
     }
 
-    // Not an admin, no admin language preference or not on an admin path.
-    return $langcode;
+    // Bail out when handling AJAX requests.
+    if ($request->isXmlHttpRequest()) {
+      return FALSE;
+    }
+
+    $path = array_slice(explode('/', trim($request->getRequestUri(), '/')), 0);
+    $request_path = implode('/', $path);
+
+    // Don't run this code if we are accessing anything in the files path.
+    /*
+     * TODO: Files detection
+    $public_files_path = variable_get('file_public_path', conf_path() . '/files');
+    if (strpos($request_path, $public_files_path) === 0) {
+      return FALSE;
+    }
+    */
+
+    /*
+     * TODO: Check if this is still valid.
+    if (strpos($request_path, 'cdn/farfuture') === 0) {
+      return FALSE;
+    }
+
+    if (strpos($request_path, 'httprl_async_function_callback') === 0) {
+      return FALSE;
+    }
+    */
+
+    // Don't run this code on the language selection page itself.
+    if ($path[0] === $config->get('path')) {
+      return FALSE;
+    }
+
+    // @TODO: document this
+    if (!isset($_SERVER['SERVER_ADDR'])) {
+      return FALSE;
+    }
+
+    // Don't run this code if we are accessing another php file than index.php.
+    if ($_SERVER['SCRIPT_NAME'] !== $GLOBALS['base_path'] . 'index.php') {
+      return FALSE;
+    }
+
+    // Check the path against a list of paths where that the module shouldn't run
+    // on.
+    // This list of path is configurable on the admin page.
+    foreach ((array) $config->get('blacklisted_paths') as $blacklisted_path) {
+      $is_on_blacklisted_path = \Drupal::service('path.matcher')->matchPath($request->getRequestUri(), $blacklisted_path);
+      if ($is_on_blacklisted_path) {
+        return FALSE;
+      }
+    }
+
+    // Check if the ignore "language neutral" option is checked.
+    // If so, we will check if the entity language is set to LANGUAGE_NONE.
+    // Checking also for content type translation options since node can have the
+    // default language set instead of LANGUAGE_NONE.
+    if (TRUE == $config->get('ignore_neutral')) {
+      $entity = $request->attributes->get('node');
+      if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type,'') === '0')) {
+        return FALSE;
+      }
+    }
+
+    // Do not return any language if we use the Drupal's block method
+    // to display the redirection.
+    // Be aware that this will automatically assign the default language.
+    if ('block' == $config->get('type')) {
+      return FALSE;
+    }
+
+    // Redirect to the language selection page properly.
+    $language_selection_page_url_elements[] = $config->get('path');
+    $language_selection_page_url_elements[] = $request->getRequestUri() ? $request->getRequestUri() : NULL;
+
+    $language_selection_page_url = trim(implode('', array_filter($language_selection_page_url_elements)), '/');
+
+    return new RedirectResponse($language_selection_page_url);
+
+    // Todo: Check if this is till working.
+    if (empty($GLOBALS['language']->provider)) {
+      //drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));
+    }
+
+    return FALSE;
   }
 
   /**

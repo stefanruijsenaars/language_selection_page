@@ -1,1 +1,10 @@
 path: language_selection_page
+type: standalone
+blacklisted_paths:
+ - 'admin'
+ - 'user'
+ - 'admin/*'
+ - 'admin*'
+ - 'node/add/*'
+ - 'node/*/edit'
+ignore_language_neutral: FALSE
