@@ -1,0 +1,7 @@
+language.negotiation_selection_page:
+  path: '/admin/config/regional/language/detection/language_selection_page'
+  defaults:
+    _form: 'Drupal\language_selection_page\Form\NegotiationLanguageSelectionPageForm'
+    _title: 'Language Selection Page detection configuration'
+  requirements:
+    _permission: 'administer languages'
