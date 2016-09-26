@@ -10,7 +10,7 @@ function language_selection_page_theme($existing, $type, $theme, $path) {
       'path' => $path . '/templates',
       'template' => 'language-selection-page',
       'variables' => [
-        'var1' => 'default value for var1',
+        'content' => NULL,
       ],
     ],
     'language_selection_page_content' => [
@@ -18,7 +18,7 @@ function language_selection_page_theme($existing, $type, $theme, $path) {
       'path' => $path . '/templates',
       'template' => 'language-selection-page-content',
       'variables' => [
-        'var1' => 'page content',
+        'destination' => NULL,
       ],
     ],
   ];

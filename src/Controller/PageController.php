@@ -12,11 +12,17 @@ use Symfony\Component\HttpFoundation\Response;
 class PageController extends ControllerBase {
 
   public function main() {
+    $request = \Drupal::request();
+
+    $qs = $request->getQueryString();
+    list($key, $value) = explode('=', $qs, 2);
+    $destination = urldecode($value);
+
     $config = \Drupal::config('language_selection_page.negotiation');
 
     $content = [
       '#theme' => 'language_selection_page_content',
-      '#var1' => 'Actual value for var1',
+      '#destination' => $destination,
     ];
     $output = \Drupal::service('renderer')->renderRoot($content)->__toString();
 
@@ -26,7 +32,7 @@ class PageController extends ControllerBase {
     } else {
       $response = [
         '#theme' => 'language_selection_page',
-        '#var1' => $output,
+        '#content' => $output,
       ];
     }
 

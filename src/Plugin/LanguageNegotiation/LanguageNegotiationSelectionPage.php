@@ -118,7 +118,7 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
       return FALSE;
     }
 
-    $path = array_slice(explode('/', trim($request->getRequestUri(), '/')), 0);
+    $path = array_slice(explode('/', trim($request->getPathInfo(), '/')), 0);
     $request_path = implode('/', $path);
 
     // Don't run this code if we are accessing anything in the files path.
@@ -140,6 +140,7 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
       return FALSE;
     }
     */
+
 
     // Don't run this code on the language selection page itself.
     if ($path[0] === $config->get('path')) {
@@ -185,12 +186,10 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
     }
 
     // Redirect to the language selection page properly.
-    $language_selection_page_url_elements[] = $config->get('path');
-    $language_selection_page_url_elements[] = $request->getRequestUri() ? $request->getRequestUri() : NULL;
+    $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request_path);
 
-    $language_selection_page_url = trim(implode('', array_filter($language_selection_page_url_elements)), '/');
-
-    return new RedirectResponse($language_selection_page_url);
+    header("Location: $url");
+    die();
 
     // Todo: Check if this is till working.
     if (empty($GLOBALS['language']->provider)) {
