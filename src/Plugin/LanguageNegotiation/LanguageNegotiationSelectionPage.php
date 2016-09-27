@@ -105,7 +105,6 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
    * {@inheritdoc}
    */
   public function getLangcode(Request $request = NULL) {
-    $languages = $this->languageManager->getLanguages();
     $config = \Drupal::config('language_selection_page.negotiation');
 
     // Bail out when running tests on commandline.
@@ -119,7 +118,7 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
     }
 
     $path = array_slice(explode('/', trim($request->getPathInfo(), '/')), 0);
-    $request_path = implode('/', $path);
+    $request_path = '/' . implode('/', $path);
 
     // Don't run this code if we are accessing anything in the files path.
     /*
@@ -140,7 +139,6 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
       return FALSE;
     }
     */
-
 
     // Don't run this code on the language selection page itself.
     if ($path[0] === $config->get('path')) {
@@ -188,6 +186,7 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
     // Redirect to the language selection page properly.
     $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request_path);
 
+    // Todo: Is there a better way to do this ?
     header("Location: $url");
     die();
 
