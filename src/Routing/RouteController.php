@@ -1,13 +1,12 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\language_selection_page\Routing\RouteController.
- */
 namespace Drupal\language_selection_page\Routing;
 
 use Symfony\Component\Routing\Route;
 
+/**
+ * Class RouteController.
+ */
 class RouteController {
 
   /**
@@ -21,7 +20,7 @@ class RouteController {
       $config->get('path'),
       [
         '_controller' => '\Drupal\language_selection_page\Controller\PageController::main',
-        '_title' => $config->get('page_title'),
+        '_title' => $config->get('title'),
       ],
       [
         '_permission' => 'access content',

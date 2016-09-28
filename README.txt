@@ -42,5 +42,6 @@ If you selected "Template in theme", you might want to add a page--languageselec
 
 MAINTAINERS
 ------------
-Drupal 6 version and initial Drupal 7 port: Pol Dell'Aiera <drupol@about.me>
+Drupal 6 and 7 version: Pol Dellaiera <drupol@about.me>
 Drupal 7 version: Sven Decabooter <sven@svendecabooter.be>
+Drupal 8 version: Pol Dellaiera <drupol@about.me>

@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Module installation code
+ * Module installation code.
  */
 
 /**
@@ -26,21 +27,15 @@ function language_selection_page_is_negotiation_detected() {
  * Implements hook_requirements().
  */
 function language_selection_page_requirements($phase) {
-  //$t = t();
-
   $requirements = array();
   $languages = \Drupal::languageManager()->getNativeLanguages();
   $language_negotiation_config = \Drupal::config('language.negotiation')->get('url');
   $prefixes = array_filter($language_negotiation_config['prefixes']);
 
-  $request_path = urldecode(trim(\Drupal::request()->getPathInfo(), '/'));
-  $path_args = explode('/', $request_path);
-  $prefix = array_shift($path_args);
-
   $lang_list_without_prefix = array();
   foreach ($languages as $language) {
     if (empty($prefixes[$language->getId()])) {
-      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to <a href="@language_url">language @language_name</a> if you want to have it enabled in the <b>Language Selection Page</b>.', array('@language_url' => url('admin/config/regional/language/edit/' . $language->getId()), '@language_name' => $language->getName()));
+      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to <a href="@language_url">language @language_name</a> if you want to have it enabled in the <b>Language Selection Page</b>.', array('@language_url' => '/admin/config/regional/language/edit/' . $language->getId(), '@language_name' => $language->getName()));
     }
   }
 
@@ -48,14 +43,14 @@ function language_selection_page_requirements($phase) {
     $requirements['language_selection_page'] = array(
       'title' => 'Language Selection Page',
       'value' => implode('<br/>', $lang_list_without_prefix),
-      'severity' => REQUIREMENT_WARNING
+      'severity' => REQUIREMENT_WARNING,
     );
   }
   else {
     $requirements['language_selection_page'] = array(
       'title' => 'Language Selection Page',
       'value' => t('All your languages have language prefixes.'),
-      'severity' => REQUIREMENT_OK
+      'severity' => REQUIREMENT_OK,
     );
   }
 

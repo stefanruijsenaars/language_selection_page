@@ -2,35 +2,41 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Config\Config;
-use Drupal\language_selection_page\Annotation\LanguageSelectionPageCondition;
+use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO
+ * Class for TODO.
  *
  * @LanguageSelectionPageCondition(
- *   id = \Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition\LanguageSelectionPageConditionXMLHTTPRequest::ID,
- *   weight = -90,
- *   name = @Translation("URL"),
- *   description = @Translation("Language from the URL (Path prefix or domain)."),
+ *   id = "xml_http_request",
+ *   weight = -110,
+ *   name = @Translation("XML HTTP Request"),
+ *   description = @Translation("Bails out when the request is an AJAX request."),
  * )
  */
-class LanguageSelectionPageConditionXMLHTTPRequest extends LanguageSelectionPageCondition implements LanguageSelectionPageConditionInterface {
-
-  const ID = 'xml_http_request';
+class LanguageSelectionPageConditionXMLHTTPRequest extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function evaluate(Request $request, Config $config) {
-    // Bail out when handling AJAX requests.
-    if ($request->isXmlHttpRequest()) {
-      return FALSE;
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate() {
+    if ($this->configuration['request']->isXmlHttpRequest()) {
+      return $this->block();
     }
 
-    return TRUE;
+    return $this->pass();
   }
 
 }

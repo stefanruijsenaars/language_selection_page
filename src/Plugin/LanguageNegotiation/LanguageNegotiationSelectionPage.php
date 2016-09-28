@@ -7,13 +7,8 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
-use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
-use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 
 /**
@@ -28,12 +23,6 @@ use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
  * )
  */
 class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase implements ContainerFactoryPluginInterface {
-
-  /*
-define('LANGUAGE_SELECTION_PAGE_TEMPLATE_IN_THEME', 32);
-define('LANGUAGE_SELECTION_PAGE_TEMPLATE_ONLY', 64);
-define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
-  */
 
   /**
    * The language negotiation method id.
@@ -107,89 +96,52 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
    */
   public function getLangcode(Request $request = NULL) {
     $config = \Drupal::config('language_selection_page.negotiation');
+    /** @var PluginManagerInterface $manager */
     $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
     $path = array_slice(explode('/', trim($request->getPathInfo(), '/')), 0);
     $request_path = '/' . implode('/', $path);
 
     foreach ($manager->getDefinitions() as $def) {
       /** @var LanguageSelectionPageConditionInterface $condition_plugin */
-      $condition_plugin = $manager->createInstance($def['id']);
-
-      if (!$condition_plugin->evaluate($request, $config)) {
+      $condition_plugin = $manager->createInstance($def['id'], ['request' => $request, 'config' => $config]);
+      if (!$condition_plugin->evaluate()) {
         return FALSE;
       }
     }
-
 
     // Don't run this code if we are accessing anything in the files path.
     /*
      * TODO: Files detection
     $public_files_path = variable_get('file_public_path', conf_path() . '/files');
     if (strpos($request_path, $public_files_path) === 0) {
-      return FALSE;
+    return FALSE;
     }
-    */
+     */
 
     /*
      * TODO: Check if this is still valid.
     if (strpos($request_path, 'cdn/farfuture') === 0) {
-      return FALSE;
+    return FALSE;
     }
 
     if (strpos($request_path, 'httprl_async_function_callback') === 0) {
-      return FALSE;
+    return FALSE;
     }
-    */
+     */
 
+    // Todo: Is there a better way to do this ?
     // Redirect to the language selection page properly.
     $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request_path);
-    // Todo: Is there a better way to do this ?
     header("Location: $url");
     die();
 
     // Todo: Check if this is till working.
+    // Patch to backport: https://www.drupal.org/node/1314384
     if (empty($GLOBALS['language']->provider)) {
-      //drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));
+      // drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));.
     }
 
     return FALSE;
-  }
-
-  /**
-   * Checks whether the given path is an administrative one.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request object.
-   *
-   * @return bool
-   *   TRUE if the path is administrative, FALSE otherwise.
-   */
-  protected function isAdminPath(Request $request) {
-    $result = FALSE;
-    if ($request && $this->adminContext) {
-      // If called from an event subscriber, the request may not have the route
-      // object yet (it is still being built), so use the router to look up
-      // based on the path.
-      $route_match = $this->stackedRouteMatch->getRouteMatchFromRequest($request);
-      if ($route_match && !$route_object = $route_match->getRouteObject()) {
-        try {
-          // Process the path as an inbound path. This will remove any language
-          // prefixes and other path components that inbound processing would
-          // clear out, so we can attempt to load the route clearly.
-          $path = $this->pathProcessorManager->processInbound(urldecode(rtrim($request->getPathInfo(), '/')), $request);
-          $attributes = $this->router->match($path);
-        }
-        catch (ResourceNotFoundException $e) {
-          return FALSE;
-        }
-        catch (AccessDeniedHttpException $e) {
-          return FALSE;
-        }
-        $route_object = $attributes[RouteObjectInterface::ROUTE_OBJECT];
-      }
-      $result = $this->adminContext->isAdminRoute($route_object);
-    }
-    return $result;
   }
 
 }

@@ -2,35 +2,41 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Config\Config;
-use Drupal\language_selection_page\Annotation\LanguageSelectionPageCondition;
+use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO
+ * Class for TODO.
  *
  * @LanguageSelectionPageCondition(
- *   id = \Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition\LanguageSelectionPageConditionIndex::ID,
+ *   id = "index",
  *   weight = -60,
  *   name = @Translation("Index"),
- *   description = @Translation("TODO"),
+ *   description = @Translation("Bails out when running the script on another php file than index.php."),
  * )
  */
-class LanguageSelectionPageConditionIndex extends LanguageSelectionPageCondition implements LanguageSelectionPageConditionInterface {
-
-  const ID = 'index';
+class LanguageSelectionPageConditionIndex extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function evaluate(Request $request, Config $config) {
-    // Don't run this code if we are accessing another php file than index.php.
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate() {
     if ($_SERVER['SCRIPT_NAME'] !== $GLOBALS['base_path'] . 'index.php') {
-      return FALSE;
+      return $this->block();
     }
 
-    return TRUE;
+    return $this->pass();
   }
 
 }

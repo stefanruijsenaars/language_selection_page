@@ -2,35 +2,42 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Config\Config;
-use Drupal\language_selection_page\Annotation\LanguageSelectionPageCondition;
+use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO
+ * Class for TODO.
  *
  * @LanguageSelectionPageCondition(
- *   id = \Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition\LanguageSelectionPageConditionServerAddr::ID,
+ *   id = "server_addr",
  *   weight = -70,
  *   name = @Translation("Server Addr check"),
  *   description = @Translation("TODO"),
  * )
  */
-class LanguageSelectionPageConditionServerAddr extends LanguageSelectionPageCondition implements LanguageSelectionPageConditionInterface {
-
-  const ID = 'server_addr';
+class LanguageSelectionPageConditionServerAddr extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function evaluate(Request $request, Config $config) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate() {
     // @TODO: document this
     if (!isset($_SERVER['SERVER_ADDR'])) {
-      return FALSE;
+      return $this->block();
     }
 
-    return TRUE;
+    return $this->pass();
   }
 
 }

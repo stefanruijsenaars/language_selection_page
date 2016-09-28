@@ -2,28 +2,28 @@
 
 namespace Drupal\language_selection_page\Annotation;
 
-use Drupal\Component\Annotation\Plugin;
+use Drupal\Core\Condition\Annotation\Condition;
 
 /**
  * Defines a language selection page condition annotation object.
  *
- * Plugin Namespace: Plugin\LanguageSelectionPageCondition
+ * Plugin Namespace: Plugin\LanguageSelectionPageCondition.
  *
  * @see plugin_api
  *
  * @Annotation
  */
-class LanguageSelectionPageCondition extends Plugin {
+class LanguageSelectionPageCondition extends Condition {
 
   /**
-   * The language negotiation plugin ID.
+   * The language selection page condition plugin ID.
    *
    * @var string
    */
   public $id;
 
   /**
-   * The default weight of the language negotiation plugin.
+   * The default weight of the language selection page condition plugin.
    *
    * @var int
    */
@@ -32,18 +32,18 @@ class LanguageSelectionPageCondition extends Plugin {
   /**
    * The human-readable name of the language negotiation plugin.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $name;
 
   /**
    * The description of the language negotiation plugin.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $description;
 
