@@ -1,0 +1,4 @@
+services:
+  plugin.manager.language_selection_page_condition:
+    class: Drupal\language_selection_page\LanguageSelectionPageConditionManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler']

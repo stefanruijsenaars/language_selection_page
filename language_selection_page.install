@@ -1,0 +1,63 @@
+<?php
+/**
+ * @file
+ * Module installation code
+ */
+
+/**
+ * Callback to check if a language has been detected.
+ *
+ * @return bool|mixed
+ *   If no language is detected returns FALSE or the language object.
+ */
+function language_selection_page_is_negotiation_detected() {
+  if (!isset($GLOBALS['language']->provider)) {
+    return FALSE;
+  }
+
+  if (($GLOBALS['language']->provider == 'language-default')) {
+    return FALSE;
+  }
+
+  return $GLOBALS['language'];
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function language_selection_page_requirements($phase) {
+  //$t = t();
+
+  $requirements = array();
+  $languages = \Drupal::languageManager()->getNativeLanguages();
+  $language_negotiation_config = \Drupal::config('language.negotiation')->get('url');
+  $prefixes = array_filter($language_negotiation_config['prefixes']);
+
+  $request_path = urldecode(trim(\Drupal::request()->getPathInfo(), '/'));
+  $path_args = explode('/', $request_path);
+  $prefix = array_shift($path_args);
+
+  $lang_list_without_prefix = array();
+  foreach ($languages as $language) {
+    if (empty($prefixes[$language->getId()])) {
+      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to <a href="@language_url">language @language_name</a> if you want to have it enabled in the <b>Language Selection Page</b>.', array('@language_url' => url('admin/config/regional/language/edit/' . $language->getId()), '@language_name' => $language->getName()));
+    }
+  }
+
+  if (count($lang_list_without_prefix) >= 1) {
+    $requirements['language_selection_page'] = array(
+      'title' => 'Language Selection Page',
+      'value' => implode('<br/>', $lang_list_without_prefix),
+      'severity' => REQUIREMENT_WARNING
+    );
+  }
+  else {
+    $requirements['language_selection_page'] = array(
+      'title' => 'Language Selection Page',
+      'value' => t('All your languages have language prefixes.'),
+      'severity' => REQUIREMENT_OK
+    );
+  }
+
+  return $requirements;
+}

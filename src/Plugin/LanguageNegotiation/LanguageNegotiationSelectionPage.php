@@ -7,6 +7,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
+use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -106,19 +107,19 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
    */
   public function getLangcode(Request $request = NULL) {
     $config = \Drupal::config('language_selection_page.negotiation');
-
-    // Bail out when running tests on commandline.
-    if (PHP_SAPI === 'cli') {
-      return FALSE;
-    }
-
-    // Bail out when handling AJAX requests.
-    if ($request->isXmlHttpRequest()) {
-      return FALSE;
-    }
-
+    $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
     $path = array_slice(explode('/', trim($request->getPathInfo(), '/')), 0);
     $request_path = '/' . implode('/', $path);
+
+    foreach ($manager->getDefinitions() as $def) {
+      /** @var LanguageSelectionPageConditionInterface $condition_plugin */
+      $condition_plugin = $manager->createInstance($def['id']);
+
+      if (!$condition_plugin->evaluate($request, $config)) {
+        return FALSE;
+      }
+    }
+
 
     // Don't run this code if we are accessing anything in the files path.
     /*
@@ -140,52 +141,8 @@ define('LANGUAGE_SELECTION_PAGE_BLOCK', 128);
     }
     */
 
-    // Don't run this code on the language selection page itself.
-    if ($path[0] === $config->get('path')) {
-      return FALSE;
-    }
-
-    // @TODO: document this
-    if (!isset($_SERVER['SERVER_ADDR'])) {
-      return FALSE;
-    }
-
-    // Don't run this code if we are accessing another php file than index.php.
-    if ($_SERVER['SCRIPT_NAME'] !== $GLOBALS['base_path'] . 'index.php') {
-      return FALSE;
-    }
-
-    // Check the path against a list of paths where that the module shouldn't run
-    // on.
-    // This list of path is configurable on the admin page.
-    foreach ((array) $config->get('blacklisted_paths') as $blacklisted_path) {
-      $is_on_blacklisted_path = \Drupal::service('path.matcher')->matchPath($request->getRequestUri(), $blacklisted_path);
-      if ($is_on_blacklisted_path) {
-        return FALSE;
-      }
-    }
-
-    // Check if the ignore "language neutral" option is checked.
-    // If so, we will check if the entity language is set to LANGUAGE_NONE.
-    // Checking also for content type translation options since node can have the
-    // default language set instead of LANGUAGE_NONE.
-    if (TRUE == $config->get('ignore_neutral')) {
-      $entity = $request->attributes->get('node');
-      if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type,'') === '0')) {
-        return FALSE;
-      }
-    }
-
-    // Do not return any language if we use the Drupal's block method
-    // to display the redirection.
-    // Be aware that this will automatically assign the default language.
-    if ('block' == $config->get('type')) {
-      return FALSE;
-    }
-
     // Redirect to the language selection page properly.
     $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request_path);
-
     // Todo: Is there a better way to do this ?
     header("Location: $url");
     die();
