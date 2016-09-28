@@ -38,12 +38,14 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
     // Checking also for content type translation options since node can have
     // the default language set instead of LANGUAGE_NONE.
     // TODO: Make this working for D8.
+    /*
     if (TRUE == $this->configuration['config']->get('ignore_neutral')) {
       $entity = $this->configuration['request']->attributes->get('node');
       if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type, '') === '0')) {
         return $this->block();
       }
     }
+    */
 
     return $this->pass();
   }
@@ -55,7 +57,7 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
     $form[$this->getPluginId()] = array(
       '#title' => $this->t('Ignore language neutral entities and content types.'),
       '#type' => 'checkbox',
-      '#default_value' => $this->configuration['config']->get($this->getPluginId()),
+      '#default_value' => $this->configuration[$this->getPluginId()],
       '#description' => t('Do not redirect to the language selection page if the entity is language neutral or if the content do not have multilingual support.'),
     );
 
@@ -66,6 +68,7 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::validateConfigurationForm($form, $form_state);
     $form_state->set($this->getPluginId(), (bool) $form_state->get($this->getPluginId()));
   }
 

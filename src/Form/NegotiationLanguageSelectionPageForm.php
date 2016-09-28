@@ -2,13 +2,23 @@
 
 namespace Drupal\language_selection_page\Form;
 
+use Drupal\Core\Config\Config;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 
 /**
- * Configure the Language Selection Page language negotiation method for this site.
+ * Configure the Language Selection Page language negotiation method for this
+ * site.
  */
 class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
+
+  /**
+   * The variable containing the conditions configuration.
+   *
+   * @var Config
+   */
+  protected $config;
 
   /**
    * {@inheritdoc}
@@ -28,15 +38,15 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('language_selection_page.negotiation');
+    $this->config = $this->config('language_selection_page.negotiation');
     $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
 
     foreach ($manager->getDefinitions() as $def) {
       /** @var LanguageSelectionPageConditionInterface $condition_plugin */
       $condition_plugin = $manager->createInstance($def['id']);
-      $condition_plugin->setConfiguration($condition_plugin->getConfiguration() + ['config' => $config]);
-
       $form_state->set(['conditions', $condition_plugin->getPluginId()], $condition_plugin);
+
+      $condition_plugin->setConfiguration($condition_plugin->getConfiguration() + (array) $this->config->get());
 
       $condition_form = [];
       $condition_form['#markup'] = $condition_plugin->getDescription();
@@ -58,22 +68,28 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    /** @var LanguageSelectionPageConditionInterface $condition */
     foreach ($form_state->get(['conditions']) as $condition) {
       $condition->validateConfigurationForm($form, $form_state);
     }
-
-    parent::validateForm($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+
+    /** @var LanguageSelectionPageConditionInterface $condition */
     foreach ($form_state->get(['conditions']) as $condition) {
       $condition->submitConfigurationForm($form, $form_state);
+      $this->config
+        ->set($condition->getPluginId(), $condition->getConfiguration()[$condition->getPluginId()]);
     }
 
-    parent::submitForm($form, $form_state);
+    $this->config->save();
   }
 
 }

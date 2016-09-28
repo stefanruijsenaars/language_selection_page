@@ -36,7 +36,7 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
     // Do not return any language if we use the Drupal's block method
     // to display the redirection.
     // Be aware that this will automatically assign the default language.
-    if ('block' == $this->configuration['config']->get('type')) {
+    if ('block' == $this->configuration[$this->getPluginId()]) {
       return $this->block();
     }
 
@@ -50,7 +50,7 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
     $form[$this->getPluginId()] = array(
       '#type' => 'select',
       '#multiple' => FALSE,
-      '#default_value' => $this->configuration['config']->get('type'),
+      '#default_value' => $this->configuration[$this->getPluginId()],
       '#options' => [
         'standalone' => 'Standalone',
         'embedded' => 'Embedded',

@@ -42,7 +42,7 @@ class LanguageSelectionPageConditionTitle extends LanguageSelectionPageCondition
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form[$this->getPluginId()] = array(
       '#type' => 'textfield',
-      '#default_value' => $this->configuration['config']->get($this->getPluginId()),
+      '#default_value' => $this->configuration[$this->getPluginId()],
       '#description' => t('The title of the page.'),
       '#required' => TRUE,
       '#size' => 40,

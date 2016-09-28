@@ -36,9 +36,8 @@ abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase im
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['config']
-      ->set($this->getPluginId(), $form_state->getValue($this->getPluginId()))
-      ->save();
+    parent::submitConfigurationForm($form, $form_state);
+    $this->configuration[$this->getPluginId()] = $form_state->getValue($this->getPluginId());
   }
 
   /**

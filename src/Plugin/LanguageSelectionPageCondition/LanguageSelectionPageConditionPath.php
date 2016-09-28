@@ -35,7 +35,7 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
   public function evaluate() {
     $path = array_slice(explode('/', trim($this->configuration['request']->getPathInfo(), '/')), 0);
 
-    if ($path[0] === $this->configuration['config']->get('path')) {
+    if ($path[0] === $this->configuration[$this->getPluginId()]) {
       return $this->block();
     }
 
@@ -50,7 +50,7 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
 
     $form[$this->getPluginId()] = array(
       '#type' => 'textfield',
-      '#default_value' => $this->configuration['config']->get($this->getPluginId()),
+      '#default_value' => $this->configuration[$this->getPluginId()],
       '#description' => t('The path of the page displaying the Language Selection Page'),
       '#required' => TRUE,
       '#size' => 40,
@@ -64,13 +64,13 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::submitConfigurationForm($form, $form_state);
+
     // Flush only if there is a change in the path.
-    if ($this->configuration['config']->get($this->getPluginId()) != $form_state->getValue($this->getPluginId())) {
+    if ($this->configuration[$this->getPluginId()] != $form_state->getValue($this->getPluginId())) {
       \Drupal::cache('config')->deleteAll();
       \Drupal::service('router.builder')->rebuild();
     }
-
-    parent::submitConfigurationForm($form, $form_state);
   }
 
 }
