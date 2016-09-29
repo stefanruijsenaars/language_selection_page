@@ -2,6 +2,7 @@
 
 namespace Drupal\language_selection_page;
 
+use Drupal\Core\Condition\ConditionInterface;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -9,7 +10,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 /**
  * Base class for language selection page condition.
  */
-abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase implements LanguageSelectionPageConditionInterface, ContainerFactoryPluginInterface {
+abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase implements LanguageSelectionPageConditionInterface, ContainerFactoryPluginInterface, ConditionInterface {
 
   /**
    * The condition's weight, order of execution.
@@ -76,6 +77,13 @@ abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase im
    */
   public function getWeight() {
     return !empty($this->weight) ? $this->weight : 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluate() {
+    return $this->execute();
   }
 
 }

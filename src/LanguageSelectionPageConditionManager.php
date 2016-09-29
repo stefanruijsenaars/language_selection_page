@@ -3,13 +3,15 @@
 namespace Drupal\language_selection_page;
 
 use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Executable\ExecutableInterface;
+use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
  * Manages language selection page condition plugins.
  */
-class LanguageSelectionPageConditionManager extends DefaultPluginManager {
+class LanguageSelectionPageConditionManager extends DefaultPluginManager implements ExecutableManagerInterface {
 
   /**
    * Constructs a new LanguageSelectionPageConditionManager object.
@@ -36,11 +38,32 @@ class LanguageSelectionPageConditionManager extends DefaultPluginManager {
   public function getDefinitions() {
     $definitions = parent::getDefinitions();
 
-    uasort($definitions, function ($a, $b) {
-      return $a['weight'] > $b['weight'];
-    });
+    uasort($definitions, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     return $definitions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createInstance($plugin_id, array $configuration = array()) {
+    $plugin = $this->getFactory()->createInstance($plugin_id, $configuration);
+
+    // If we receive any context values via config set it into the plugin.
+    if (!empty($configuration['context'])) {
+      foreach ($configuration['context'] as $name => $context) {
+        $plugin->setContextValue($name, $context);
+      }
+    }
+
+    return $plugin->setExecutableManager($this);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute(ExecutableInterface $condition) {
+    return $condition->evaluate();
   }
 
 }

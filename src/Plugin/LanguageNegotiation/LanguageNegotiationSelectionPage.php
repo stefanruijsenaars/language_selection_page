@@ -2,17 +2,12 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageNegotiation;
 
-use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
-use Drupal\Core\PathProcessor\PathProcessorManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Routing\AdminContext;
-use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
-use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
+use Drupal\language_selection_page\LanguageSelectionPageConditionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 
 /**
  * Class for identifying language from a language selection page.
@@ -63,15 +58,13 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
    */
   public function getLangcode(Request $request = NULL) {
     $config = \Drupal::config('language_selection_page.negotiation');
-    /** @var PluginManagerInterface $manager */
+    /** @var LanguageSelectionPageConditionManager $manager */
     $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
     $request_path = $this->currentPath->getPath($request);
 
-
     foreach ($manager->getDefinitions() as $def) {
-      /** @var LanguageSelectionPageConditionInterface $condition_plugin */
       $condition_plugin = $manager->createInstance($def['id'], $config->get());
-      if (!$condition_plugin->evaluate()) {
+      if (!$manager->execute($condition_plugin)) {
         return FALSE;
       }
     }
