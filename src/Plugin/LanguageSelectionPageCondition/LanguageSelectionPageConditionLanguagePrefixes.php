@@ -8,7 +8,7 @@ use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO.
+ * Class for the Language Prefixes plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "language_prefixes",

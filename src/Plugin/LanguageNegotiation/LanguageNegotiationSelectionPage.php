@@ -102,8 +102,8 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
     header("Location: $url");
     die();
 
-    // Todo: Check if this is till working.
-    // Patch to backport: https://www.drupal.org/node/1314384
+    // Todo: Check if this is still working.
+    // Todo: Patch to backport: https://www.drupal.org/node/1314384
     if (empty($GLOBALS['language']->provider)) {
       // drupal_goto($language_selection_page_url, array('absolute' => TRUE, 'language' => LANGUAGE_NONE));.
     }

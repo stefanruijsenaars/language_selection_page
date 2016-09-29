@@ -7,7 +7,7 @@ use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO.
+ * Class for the PHP Sapi condition plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "php_sapi",

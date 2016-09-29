@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class for TODO.
+ * Class for the Blacklisted paths condition plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "blacklisted_paths",

@@ -8,7 +8,7 @@ use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO.
+ * Class for the Ignore Language Neutral plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "ignore_neutral",

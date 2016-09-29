@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class for TODO.
+ * Class for the Path condition plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "path",

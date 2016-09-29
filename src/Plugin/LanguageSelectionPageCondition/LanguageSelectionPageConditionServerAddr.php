@@ -7,13 +7,13 @@ use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for TODO.
+ * Class for the Server Addr condition plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "server_addr",
  *   weight = -70,
- *   name = @Translation("Server Addr check"),
- *   description = @Translation("TODO"),
+ *   name = @Translation("Server Address condition check"),
+ *   description = @Translation("Bails out if the server address is not set."),
  * )
  */
 class LanguageSelectionPageConditionServerAddr extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
@@ -32,12 +32,11 @@ class LanguageSelectionPageConditionServerAddr extends LanguageSelectionPageCond
    * {@inheritdoc}
    */
   public function evaluate() {
-    // @TODO: document this
-    if (!isset($_SERVER['SERVER_ADDR'])) {
-      return $this->block();
+    if (isset($_SERVER['SERVER_ADDR'])) {
+      return $this->pass();
     }
 
-    return $this->pass();
+    return $this->block();
   }
 
 }

@@ -11,16 +11,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class for LanguageSelectionPageConditionPathExists.
+ * Class for LanguageSelectionPageConditionPathIsValid.
  *
  * @LanguageSelectionPageCondition(
- *   id = "path_exists",
+ *   id = "path_is_valid",
  *   weight = -110,
- *   name = @Translation("Language selection page path exists"),
- *   description = @Translation("Bails out if the page doesn't exists."),
+ *   name = @Translation("Valid path"),
+ *   description = @Translation("Bails out if the path is not valid."),
  * )
  */
-class LanguageSelectionPageConditionPathExists extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
+class LanguageSelectionPageConditionPathIsValid extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
    * The request stack.
