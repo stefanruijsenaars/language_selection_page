@@ -13,7 +13,7 @@ class RouteController {
    * {@inheritdoc}
    */
   public function routes() {
-    $routes = array();
+    $routes = [];
     $config = \Drupal::config('language_selection_page.negotiation');
 
     $routes['language_selection_page'] = new Route(

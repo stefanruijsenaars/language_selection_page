@@ -12,6 +12,13 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase implements LanguageSelectionPageConditionInterface, ContainerFactoryPluginInterface {
 
   /**
+   * The condition's weight, order of execution.
+   *
+   * @var int
+   */
+  protected $weight = 0;
+
+  /**
    * {@inheritdoc}
    */
   public function block() {
@@ -59,9 +66,16 @@ abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase im
   /**
    * {@inheritdoc}
    */
+  public function setWeight($weight) {
+    $this->weight = $weight;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getWeight() {
-    $definition = $this->getPluginDefinition();
-    return !empty($definition['weight']) ? $definition['weight'] : 0;
+    return !empty($this->weight) ? $this->weight : 0;
   }
 
 }

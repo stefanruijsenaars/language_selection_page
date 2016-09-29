@@ -27,31 +27,31 @@ function language_selection_page_is_negotiation_detected() {
  * Implements hook_requirements().
  */
 function language_selection_page_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
   $languages = \Drupal::languageManager()->getNativeLanguages();
   $language_negotiation_config = \Drupal::config('language.negotiation')->get('url');
   $prefixes = array_filter($language_negotiation_config['prefixes']);
 
-  $lang_list_without_prefix = array();
+  $lang_list_without_prefix = [];
   foreach ($languages as $language) {
     if (empty($prefixes[$language->getId()])) {
-      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to <a href="@language_url">language @language_name</a> if you want to have it enabled in the <b>Language Selection Page</b>.', array('@language_url' => '/admin/config/regional/language/edit/' . $language->getId(), '@language_name' => $language->getName()));
+      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to @language language if you want to have it enabled in the Language Selection Page.', ['@language' => $language->getName()]);
     }
   }
 
   if (count($lang_list_without_prefix) >= 1) {
-    $requirements['language_selection_page'] = array(
+    $requirements['language_selection_page'] = [
       'title' => 'Language Selection Page',
       'value' => implode('<br/>', $lang_list_without_prefix),
       'severity' => REQUIREMENT_WARNING,
-    );
+    ];
   }
   else {
-    $requirements['language_selection_page'] = array(
+    $requirements['language_selection_page'] = [
       'title' => 'Language Selection Page',
       'value' => t('All your languages have language prefixes.'),
       'severity' => REQUIREMENT_OK,
-    );
+    ];
   }
 
   return $requirements;

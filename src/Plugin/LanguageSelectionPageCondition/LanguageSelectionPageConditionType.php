@@ -47,7 +47,7 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form[$this->getPluginId()] = array(
+    $form[$this->getPluginId()] = [
       '#type' => 'select',
       '#multiple' => FALSE,
       '#default_value' => $this->configuration[$this->getPluginId()],
@@ -63,7 +63,7 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
          <li><b>Block - In a Drupal\'s block</b>: Insert the Language Selection Page in a block <em>Language Selection Block</em>.</li>
        </ul>'
       ),
-    );
+    ];
 
     return $form;
   }

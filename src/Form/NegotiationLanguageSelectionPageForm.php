@@ -57,7 +57,7 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
         $condition_form['#open'] = TRUE;
         $condition_form['#title'] = $condition_plugin->getName();
         $condition_form['#weight'] = $condition_plugin->getWeight();
-        $form[$condition_plugin->getPluginId()] = $condition_form;
+        $form['conditions'][$condition_plugin->getPluginId()] = $condition_form;
       }
     }
 

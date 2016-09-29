@@ -40,13 +40,13 @@ class LanguageSelectionPageConditionTitle extends LanguageSelectionPageCondition
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form[$this->getPluginId()] = array(
+    $form[$this->getPluginId()] = [
       '#type' => 'textfield',
       '#default_value' => $this->configuration[$this->getPluginId()],
       '#description' => t('The title of the page.'),
       '#required' => TRUE,
       '#size' => 40,
-    );
+    ];
 
     return $form;
   }

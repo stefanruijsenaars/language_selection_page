@@ -34,15 +34,15 @@ class PageController extends ControllerBase {
     $links_array = [];
     foreach (\Drupal::languageManager()->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
-      $links_array[$language->getId()] = array(
+      $links_array[$language->getId()] = [
         // We need to clone the $url object to avoid using the same one for all
         // links. When the links are rendered, options are set on the $url
         // object, so if we use the same one, they would be set for all links.
         'url' => clone $url,
         'title' => $language->getName(),
         'language' => $language,
-        'attributes' => array('class' => array('language-link')),
-      );
+        'attributes' => ['class' => ['language-link']],
+      ];
     }
 
     $links = [];

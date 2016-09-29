@@ -2,11 +2,14 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageNegotiation;
 
+use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\PathProcessor\PathProcessorManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Routing\StackedRouteMatchInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
+use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
@@ -30,53 +33,20 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
   const METHOD_ID = 'language-selection-page';
 
   /**
-   * The admin context.
+   * The current path.
    *
-   * @var \Drupal\Core\Routing\AdminContext
+   * @var \Drupal\Core\Path\CurrentPathStack
    */
-  protected $adminContext;
+  protected $currentPath;
 
   /**
-   * The router.
+   * Constructs a new LanguageNegotiationSelectionPage instance.
    *
-   * This is only used when called from an event subscriber, before the request
-   * has been populated with the route info.
-   *
-   * @var \Symfony\Component\Routing\Matcher\UrlMatcherInterface
+   * @param \Drupal\Core\Path\CurrentPathStack $current_path
+   *   The current path.
    */
-  protected $router;
-
-  /**
-   * The path processor manager.
-   *
-   * @var \Drupal\Core\PathProcessor\PathProcessorManager
-   */
-  protected $pathProcessorManager;
-
-  /**
-   * The stacked route match.
-   *
-   * @var \Drupal\Core\Routing\StackedRouteMatchInterface
-   */
-  protected $stackedRouteMatch;
-
-  /**
-   * Constructs a new LanguageNegotiationUserAdmin instance.
-   *
-   * @param \Drupal\Core\Routing\AdminContext $admin_context
-   *   The admin context.
-   * @param \Symfony\Component\Routing\Matcher\UrlMatcherInterface $router
-   *   The router.
-   * @param \Drupal\Core\PathProcessor\PathProcessorManager $path_processor_manager
-   *   The path processor manager.
-   * @param \Drupal\Core\Routing\StackedRouteMatchInterface $stacked_route_match
-   *   The stacked route match.
-   */
-  public function __construct(AdminContext $admin_context, UrlMatcherInterface $router, PathProcessorManager $path_processor_manager, StackedRouteMatchInterface $stacked_route_match) {
-    $this->adminContext = $admin_context;
-    $this->router = $router;
-    $this->pathProcessorManager = $path_processor_manager;
-    $this->stackedRouteMatch = $stacked_route_match;
+  public function __construct(CurrentPathStack $current_path) {
+    $this->currentPath = $current_path;
   }
 
   /**
@@ -84,10 +54,7 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('router.admin_context'),
-      $container->get('router'),
-      $container->get('path_processor_manager'),
-      $container->get('current_route_match')
+      $container->get('path.current')
     );
   }
 
@@ -98,12 +65,12 @@ class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase imp
     $config = \Drupal::config('language_selection_page.negotiation');
     /** @var PluginManagerInterface $manager */
     $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
-    $path = array_slice(explode('/', trim($request->getPathInfo(), '/')), 0);
-    $request_path = '/' . implode('/', $path);
+    $request_path = $this->currentPath->getPath($request);
+
 
     foreach ($manager->getDefinitions() as $def) {
       /** @var LanguageSelectionPageConditionInterface $condition_plugin */
-      $condition_plugin = $manager->createInstance($def['id'], ['request' => $request, 'config' => $config]);
+      $condition_plugin = $manager->createInstance($def['id'], $config->get());
       if (!$condition_plugin->evaluate()) {
         return FALSE;
       }

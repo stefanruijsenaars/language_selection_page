@@ -55,4 +55,14 @@ interface LanguageSelectionPageConditionInterface extends ConditionInterface {
    */
   public function getWeight();
 
+  /**
+   * Set the weight of the plugin.
+   *
+   * @param $weight
+   *   The plugin's weight
+   *
+   * @return $this
+   *   Returns itself.
+   */
+  public function setWeight($weight);
 }

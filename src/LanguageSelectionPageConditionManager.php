@@ -34,11 +34,7 @@ class LanguageSelectionPageConditionManager extends DefaultPluginManager {
    * {@inheritdoc}
    */
   public function getDefinitions() {
-    $definitions = $this->getCachedDefinitions();
-    if (!isset($definitions)) {
-      $definitions = $this->findDefinitions();
-      $this->setCachedDefinitions($definitions);
-    }
+    $definitions = parent::getDefinitions();
 
     uasort($definitions, function ($a, $b) {
       return $a['weight'] > $b['weight'];
