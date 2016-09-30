@@ -3,7 +3,11 @@
 namespace Drupal\language_selection_page\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\MainContent\HtmlRenderer;
+use Drupal\Core\Render\MainContent\MainContentRendererInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -11,6 +15,43 @@ use Symfony\Component\HttpFoundation\Response;
  * Class PageController.
  */
 class PageController extends ControllerBase {
+
+  /**
+   * The route match service.
+   *
+   * @var RouteMatchInterface $currentRouteMatch
+   */
+  protected $currentRouteMatch;
+
+  /**
+   * The main content renderer.
+   *
+   * @var \Drupal\Core\Render\MainContent\MainContentRendererInterface
+   */
+  protected $mainContentRenderer;
+
+  /**
+   * PageController constructor.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
+   *   The route match service
+   * @param \Drupal\Core\Render\MainContent\MainContentRendererInterface $main_content_renderer
+   *   The main content renderer
+   */
+  public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer) {
+    $this->currentRouteMatch = $current_route_match;
+    $this->mainContentRenderer = $main_content_renderer;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('current_route_match'),
+      $container->get('main_content_renderer.html')
+    );
+  }
 
   /**
    * Page callback.
@@ -62,19 +103,15 @@ class PageController extends ControllerBase {
     ];
 
     if ($config->get('type') == 'standalone') {
-      $html = [
-        '#theme' => 'html',
-        'page' => [
-          '#theme' => 'page',
-          'content' => $content
-          ],
+      $page = [
+        '#type' => 'page',
+        'content' => $content,
       ];
 
-      $output = \Drupal::service('renderer')->renderRoot($html);
-      $response = new Response();
-      $response->setContent($output);
+      $response = $this->mainContentRenderer->renderResponse($page, $request, $this->currentRouteMatch);
     }
-    else {
+
+    if ($config->get('type') == 'embedded') {
       $response = [
         '#theme' => 'language_selection_page',
         '#content' => $content,
