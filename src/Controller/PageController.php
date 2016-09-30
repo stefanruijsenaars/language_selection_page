@@ -61,16 +61,23 @@ class PageController extends ControllerBase {
       ],
     ];
 
-    $output = \Drupal::service('renderer')->renderRoot($content)->__toString();
-
     if ($config->get('type') == 'standalone') {
+      $html = [
+        '#theme' => 'html',
+        'page' => [
+          '#theme' => 'page',
+          'content' => $content
+          ],
+      ];
+
+      $output = \Drupal::service('renderer')->renderRoot($html);
       $response = new Response();
       $response->setContent($output);
     }
     else {
       $response = [
         '#theme' => 'language_selection_page',
-        '#content' => $output,
+        '#content' => $content,
       ];
     }
 
