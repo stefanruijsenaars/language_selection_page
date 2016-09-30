@@ -66,8 +66,8 @@ class PageController extends ControllerBase {
    */
   public function main() {
     $request = $this->requestStack->getCurrentRequest();
-    $languages = $this->languageManager->getLanguages();
-    $config = $this->configFactory->get('language_selection_page.negotiation');
+    $languages = $this->languageManager()->getLanguages();
+    $config = $this->config('language_selection_page.negotiation');
 
     if (!empty($request->getQueryString())) {
       list(, $destination) = explode('=', $request->getQueryString(), 2);
@@ -128,3 +128,4 @@ class PageController extends ControllerBase {
   }
 
 }
+
