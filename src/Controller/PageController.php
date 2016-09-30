@@ -3,13 +3,12 @@
 namespace Drupal\language_selection_page\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Render\MainContent\HtmlRenderer;
 use Drupal\Core\Render\MainContent\MainContentRendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class PageController.
@@ -31,6 +30,13 @@ class PageController extends ControllerBase {
   protected $mainContentRenderer;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * PageController constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
@@ -38,9 +44,10 @@ class PageController extends ControllerBase {
    * @param \Drupal\Core\Render\MainContent\MainContentRendererInterface $main_content_renderer
    *   The main content renderer
    */
-  public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer) {
+  public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer, RequestStack $request_stack) {
     $this->currentRouteMatch = $current_route_match;
     $this->mainContentRenderer = $main_content_renderer;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -49,7 +56,8 @@ class PageController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('current_route_match'),
-      $container->get('main_content_renderer.html')
+      $container->get('main_content_renderer.html'),
+      $container->get('request_stack')
     );
   }
 
@@ -57,9 +65,9 @@ class PageController extends ControllerBase {
    * Page callback.
    */
   public function main() {
-    $request = \Drupal::request();
-    $languages = \Drupal::languageManager()->getLanguages();
-    $config = \Drupal::config('language_selection_page.negotiation');
+    $request = $this->requestStack->getCurrentRequest();
+    $languages = $this->languageManager->getLanguages();
+    $config = $this->configFactory->get('language_selection_page.negotiation');
 
     if (!empty($request->getQueryString())) {
       list(, $destination) = explode('=', $request->getQueryString(), 2);
@@ -73,7 +81,7 @@ class PageController extends ControllerBase {
     }
 
     $links_array = [];
-    foreach (\Drupal::languageManager()->getNativeLanguages() as $language) {
+    foreach ($this->languageManager->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
       $links_array[$language->getId()] = [
         // We need to clone the $url object to avoid using the same one for all
@@ -113,10 +121,7 @@ class PageController extends ControllerBase {
     }
 
     if ($config->get('type') == 'embedded') {
-      $response = [
-        '#theme' => 'language_selection_page',
-        '#content' => $content,
-      ];
+      $response = $content;
     }
 
     return $response;
