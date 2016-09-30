@@ -105,6 +105,7 @@ class PageController extends ControllerBase {
     if ($config->get('type') == 'standalone') {
       $page = [
         '#type' => 'page',
+        '#title' => $config->get('title'),
         'content' => $content,
       ];
 
