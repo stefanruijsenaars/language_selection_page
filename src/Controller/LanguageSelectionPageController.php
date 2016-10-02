@@ -2,7 +2,9 @@
 
 namespace Drupal\language_selection_page\Controller;
 
+use Drupal\Core\Config\Config;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\MainContent\MainContentRendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
@@ -11,9 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class PageController.
+ * Class LanguageSelectionPageController.
  */
-class PageController extends ControllerBase {
+class LanguageSelectionPageController extends ControllerBase {
 
   /**
    * The route match service.
@@ -62,26 +64,44 @@ class PageController extends ControllerBase {
   }
 
   /**
-   * Page callback.
+   * Callback: Get the content of the Language Selection Page.
+   *
+   * Method used in LanguageSelectionPageController::main() and
+   * LanguageSelectionPageBlock::build().
+   *
+   * TODO: Currently the method returns and array or a RedirectResponse.
+   * TODO: We should rewrite in a way that it returns only one data type.
+   *
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager
+   * @param \Drupal\Core\Config\Config $config
+   *   The configuration
+   *
+   * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
    */
-  public function main() {
-    $request = $this->requestStack->getCurrentRequest();
-    $languages = $this->languageManager()->getLanguages();
-    $config = $this->config('language_selection_page.negotiation');
+  public static function get_content(RequestStack $request_stack, LanguageManagerInterface $language_manager, Config $config) {
+    $request = $request_stack->getCurrentRequest();
+    $languages = $language_manager->getLanguages();
 
-    if (!empty($request->getQueryString())) {
-      list(, $destination) = explode('=', $request->getQueryString(), 2);
-      $destination = urldecode($destination);
-      if (empty($destination)) {
+    if ('block' != $config->get('type')) {
+      if (!empty($request->getQueryString())) {
+        list(, $destination) = explode('=', $request->getQueryString(), 2);
+        $destination = urldecode($destination);
+        if (empty($destination)) {
+          return new RedirectResponse('/');
+        }
+      }
+      else {
         return new RedirectResponse('/');
       }
-    }
-    else {
-      return new RedirectResponse('/');
+    } else {
+      $destination = $request->getPathInfo();
     }
 
     $links_array = [];
-    foreach ($this->languageManager->getNativeLanguages() as $language) {
+    foreach ($language_manager->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
       $links_array[$language->getId()] = [
         // We need to clone the $url object to avoid using the same one for all
@@ -101,7 +121,7 @@ class PageController extends ControllerBase {
       $links[$language->getId()] = $link;
     }
 
-    $content = [
+    return [
       '#theme' => 'language_selection_page_content',
       '#destination' => $destination,
       '#language_links' => [
@@ -109,19 +129,23 @@ class PageController extends ControllerBase {
         '#items' => $links,
       ],
     ];
+  }
 
-    if ($config->get('type') == 'standalone') {
+  /**
+   * Page callback.
+   */
+  public function main() {
+    $config = $this->config('language_selection_page.negotiation');
+    $response = self::get_content($this->requestStack, $this->languageManager(), $config);
+
+    if ('standalone' == $config->get('type')) {
       $page = [
         '#type' => 'page',
         '#title' => $config->get('title'),
-        'content' => $content,
+        'content' => $response,
       ];
 
-      $response = $this->mainContentRenderer->renderResponse($page, $request, $this->currentRouteMatch);
-    }
-
-    if ($config->get('type') == 'embedded') {
-      $response = $content;
+      $response = $this->mainContentRenderer->renderResponse($page, $this->requestStack->getCurrentRequest(), $this->currentRouteMatch);
     }
 
     return $response;

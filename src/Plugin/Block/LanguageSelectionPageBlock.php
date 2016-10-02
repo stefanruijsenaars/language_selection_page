@@ -4,7 +4,7 @@ namespace Drupal\language_selection_page\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Url;
+use Drupal\language_selection_page\Controller\LanguageSelectionPageController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -64,41 +64,14 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
    * {@inheritdoc}
    */
   public function build() {
-    $request = $this->requestStack->getCurrentRequest();
-    $languages = $this->languageManager()->getLanguages();
-    $destination = $request->getPathInfo();
+    $config = $this->config('language_selection_page.negotiation');
 
-    $links_array = [];
-    foreach ($this->languageManager->getNativeLanguages() as $language) {
-      $url = Url::fromUserInput($destination, ['language' => $language]);
-      $links_array[$language->getId()] = [
-        // We need to clone the $url object to avoid using the same one for all
-        // links. When the links are rendered, options are set on the $url
-        // object, so if we use the same one, they would be set for all links.
-        'url' => clone $url,
-        'title' => $language->getName(),
-        'language' => $language,
-        'attributes' => ['class' => ['language-link']],
-      ];
+    $content = NULL;
+    if ('block' == $config->get('type')) {
+      $content = LanguageSelectionPageController::get_content($this->requestStack, $this->languageManager(), $config);
     }
 
-    $links = [];
-    foreach ($languages as $language) {
-      $url = Url::fromUserInput($destination, ['language' => $language]);
-      $link = \Drupal::linkGenerator()->generate($language->getName(), $url);
-      $links[$language->getId()] = $link;
-    }
-
-    $content = [
-      '#theme' => 'language_selection_page_content',
-      '#destination' => $destination,
-      '#language_links' => [
-        '#theme' => 'item_list',
-        '#items' => $links,
-      ],
-    ];
-
-    return $content;
+    return is_array($content) ? $content : NULL;
   }
 
   /**

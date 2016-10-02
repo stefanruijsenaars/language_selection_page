@@ -5,9 +5,9 @@ namespace Drupal\language_selection_page\Routing;
 use Symfony\Component\Routing\Route;
 
 /**
- * Class RouteController.
+ * Class LanguageSelectionPageRouteController.
  */
-class RouteController {
+class LanguageSelectionPageRouteController {
 
   /**
    * {@inheritdoc}
@@ -19,7 +19,7 @@ class RouteController {
     $routes['language_selection_page'] = new Route(
       $config->get('path'),
       [
-        '_controller' => '\Drupal\language_selection_page\Controller\PageController::main',
+        '_controller' => '\Drupal\language_selection_page\Controller\LanguageSelectionPageController::main',
         '_title' => $config->get('title'),
       ],
       [

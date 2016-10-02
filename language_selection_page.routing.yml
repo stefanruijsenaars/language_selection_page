@@ -7,4 +7,4 @@ language.negotiation_selection_page:
     _permission: 'administer languages'
 
 route_callbacks:
- - '\Drupal\language_selection_page\Routing\RouteController::routes'
+ - '\Drupal\language_selection_page\Routing\LanguageSelectionPageRouteController::routes'
