@@ -8,4 +8,5 @@ blacklisted_paths:
  - '/admin*'
  - '/node/add/*'
  - '/node/*/edit'
+ - '/node'
 ignore_neutral: FALSE
