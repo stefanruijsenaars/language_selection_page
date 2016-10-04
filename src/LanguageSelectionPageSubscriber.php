@@ -43,10 +43,9 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    */
   private function getLanguage() {
     $methods = $this->languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
-    uasort($methods, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
-
     // Disable default language.
     unset($methods['language-selected']);
+    uasort($methods, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     foreach ($methods as $method_id => $method_definition) {
       $lang = $this->languageNegotiator->getNegotiationMethodInstance($method_id)->getLangcode($this->event->getRequest());
@@ -66,20 +65,8 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * @return bool|Response
    */
   public function redirectToLanguageSelectionPage(FilterResponseEvent $event) {
-    $this->currentPath = \Drupal::getContainer()->get('path.current');
     $this->event = $event;
-    $request = $this->event->getRequest();
-
-    $this->languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
-    $this->languageNegotiator->setCurrentUser(\Drupal::currentUser()->getAccount());
-
-    $methods = $this->languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
-
-    // Do not run if not configured in Language Negotiation.
-    if (!isset($methods['language-selection-page'])) {
-      return FALSE;
-    }
-
+    $this->currentPath = \Drupal::getContainer()->get('path.current');
     $config = \Drupal::config('language_selection_page.negotiation');
 
     /** @var LanguageSelectionPageConditionManager $manager */
@@ -91,6 +78,12 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
         return FALSE;
       }
     }
+
+    $this->languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
+    $this->languageNegotiator->setCurrentUser(\Drupal::currentUser()->getAccount());
+
+    $this->currentPath = \Drupal::getContainer()->get('path.current');
+    $request = $this->event->getRequest();
 
     if (!$lang = $this->getLanguage()) {
       $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $this->currentPath->getPath($request));
