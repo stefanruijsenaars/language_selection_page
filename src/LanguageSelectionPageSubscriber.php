@@ -3,12 +3,13 @@
 namespace Drupal\language_selection_page;
 
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\language\LanguageNegotiatorInterface;
+use Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationSelectionPage;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Drupal\language\Plugin\LanguageNegotiation\LanguageNegotiationSelected;
 
 /**
  * Provides a LanguageSelectionPageSubscriber.
@@ -23,38 +24,32 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
   protected $event;
 
   /**
-   * The Language Negotiator
-   *
-   * @var LanguageNegotiatorInterface
-   */
-  protected $languageNegotiator;
-
-  /**
-   * The current path.
-   *
-   * @var \Drupal\Core\Path\CurrentPathStack
-   */
-  protected $currentPath;
-
-  /**
    * Callback helper.
    *
    * @return array|bool
    */
   private function getLanguage() {
-    $methods = $this->languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
-    // Disable default language.
-    unset($methods['language-selected']);
+    $languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
+    // Get all methods available for this language type.
+    $methods = $languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
+    // @todo document why we ignore this
+    unset($methods[LanguageNegotiationSelected::METHOD_ID]);
     uasort($methods, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     foreach ($methods as $method_id => $method_definition) {
-      $lang = $this->languageNegotiator->getNegotiationMethodInstance($method_id)->getLangcode($this->event->getRequest());
+      // Do not consider language providers with a lower priority than the
+      // cookie language provider, nor the cookie provider itself.
+      if ($method_id == LanguageNegotiationSelectionPage::METHOD_ID) {
+        return FALSE;
+      }
+      $lang = $languageNegotiator->getNegotiationMethodInstance($method_id)->getLangcode($this->event->getRequest());
       if ($lang) {
-        return [$lang, $method_id];
+        return $lang;
       }
     }
 
-    return FALSE;
+    // If no other language was found, use the default one.
+    return \Drupal::languageManager()->getDefaultLanguage()->getId();
   }
 
   /**
@@ -66,7 +61,6 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    */
   public function redirectToLanguageSelectionPage(FilterResponseEvent $event) {
     $this->event = $event;
-    $this->currentPath = \Drupal::getContainer()->get('path.current');
     $config = \Drupal::config('language_selection_page.negotiation');
 
     /** @var LanguageSelectionPageConditionManager $manager */
@@ -79,14 +73,11 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
       }
     }
 
-    $this->languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
-    $this->languageNegotiator->setCurrentUser(\Drupal::currentUser()->getAccount());
-
-    $this->currentPath = \Drupal::getContainer()->get('path.current');
-    $request = $this->event->getRequest();
-
     if (!$lang = $this->getLanguage()) {
-      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $this->currentPath->getPath($request));
+      $currentPath = \Drupal::getContainer()->get('path.current');
+      $request = $this->event->getRequest();
+
+      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $currentPath->getPath($request));
       $response = new RedirectResponse($url);
 
       $event->setResponse($response);
@@ -102,4 +93,5 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
     $events[KernelEvents::RESPONSE][] = array('redirectToLanguageSelectionPage', -50);
     return $events;
   }
+
 }
