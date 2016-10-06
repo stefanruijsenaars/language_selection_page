@@ -2,6 +2,7 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
