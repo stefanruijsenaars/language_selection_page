@@ -2,6 +2,7 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "ignore_neutral",
  *   weight = -40,
  *   name = @Translation("Ignore language neutral entities"),
- *   description = @Translation("Ignore language neutral entities and content types."),
+ *   description = @Translation("Ignore entities with langcodes set to Not specified or Not applicable."),
  * )
  */
 class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
@@ -33,19 +34,13 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
    * {@inheritdoc}
    */
   public function evaluate() {
-    // Check if the ignore "language neutral" option is checked.
-    // If so, we will check if the entity language is set to LANGUAGE_NONE.
-    // Checking also for content type translation options since node can have
-    // the default language set instead of LANGUAGE_NONE.
-    // TODO: Make this working for D8.
-    /*
-    if (TRUE == $this->configuration['config']->get('ignore_neutral')) {
+    if ($this->getConfiguration()[$this->getPluginId()] == TRUE) {
+      /** @var EntityInterface $entity */
       $entity = $this->configuration['request']->attributes->get('node');
-      if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type, '') === '0')) {
-        return $this->block();
+      if (in_array($entity->language()->getId(), ['und', 'zxx'])) {
+        $this->block();
       }
     }
-    */
 
     return $this->pass();
   }
