@@ -1,0 +1,21 @@
+language_selection_page.negotiation.yml:
+  type: config_object
+  label: 'Language selection page negotiation settings'
+  mapping:
+    title:
+      type: string
+      label: 'Language selection page title'
+      translatable: true
+    path:
+      type: string 
+      label: 'Language selection page path'
+      translatable: true
+    type:
+      type: string
+      label: 'Language selection page type (standalone, block, or body)'
+    blacklisted_paths:
+      type: string
+      label: 'Blacklisted paths'
+    ignore_neutral:
+      type: boolean 
+      label: 'Ignore language neutral paths'
