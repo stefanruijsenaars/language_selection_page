@@ -2,10 +2,8 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageNegotiation;
 
-use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
-use Drupal\language_selection_page\LanguageSelectionPageConditionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,11 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
  *   weight = -4,
  *   name = @Translation("Language Selection Page"),
  *   description = @Translation("Language is set from a language selection page"),
- *   id = Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationSelectionPage::METHOD_ID,
- *   config_route_name = "language.negotiation_selection_page"
+ *   id = Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationLanguageSelectionPage::METHOD_ID,
+ *   config_route_name = "language_selection_page.negotiation_selection_page"
  * )
  */
-class LanguageNegotiationSelectionPage extends LanguageNegotiationMethodBase implements ContainerFactoryPluginInterface {
+class LanguageNegotiationLanguageSelectionPage extends LanguageNegotiationMethodBase implements ContainerFactoryPluginInterface {
 
   /**
    * The language negotiation method id.

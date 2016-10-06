@@ -98,8 +98,7 @@ class LanguageSelectionPageConditionBlacklistedPaths extends LanguageSelectionPa
   public function evaluate() {
     // Check the path against a list of paths where that the module shouldn't
     // run on.
-    // This list of path is configurable on the admin page.
-
+    // This list of paths is configurable on the admin page.
     foreach ((array) $this->configuration[$this->getPluginId()] as $blacklisted_path) {
       $request = $this->requestStack->getCurrentRequest();
       // Compare the lowercase path alias (if any) and internal path.

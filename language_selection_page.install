@@ -5,23 +5,7 @@
  * Module installation code.
  */
 
-/**
- * Callback to check if a language has been detected.
- *
- * @return bool|mixed
- *   If no language is detected returns FALSE or the language object.
- */
-function language_selection_page_is_negotiation_detected() {
-  if (!isset($GLOBALS['language']->provider)) {
-    return FALSE;
-  }
-
-  if (($GLOBALS['language']->provider == 'language-default')) {
-    return FALSE;
-  }
-
-  return $GLOBALS['language'];
-}
+use Drupal\Core\Url;
 
 /**
  * Implements hook_requirements().
@@ -35,15 +19,20 @@ function language_selection_page_requirements($phase) {
   $lang_list_without_prefix = [];
   foreach ($languages as $language) {
     if (empty($prefixes[$language->getId()])) {
-      $lang_list_without_prefix[$language->getId()] = t('You should add a path prefix to @language language if you want to have it enabled in the Language Selection Page.', ['@language' => $language->getName()]);
+      $lang_list_without_prefix[$language->getId()] = t('You should <a href=":admin">add a path prefix</a> to @language language if you want to have it enabled in the Language Selection Page.', [
+        '@language' => $language->getName(),
+        ':admin' => Url::fromRoute('language.negotiation_url')->toString(),
+      ]);
     }
   }
 
   if (count($lang_list_without_prefix) >= 1) {
     $requirements['language_selection_page'] = [
       'title' => 'Language Selection Page',
-      'value' => implode('<br/>', $lang_list_without_prefix),
-      'severity' => REQUIREMENT_WARNING,
+      'value' => [
+        '#theme' => 'item_list',
+        '#items' => $lang_list_without_prefix,
+      ],
     ];
   }
   else {

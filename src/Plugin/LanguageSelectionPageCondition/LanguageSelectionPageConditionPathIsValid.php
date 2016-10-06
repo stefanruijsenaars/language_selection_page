@@ -2,7 +2,6 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;

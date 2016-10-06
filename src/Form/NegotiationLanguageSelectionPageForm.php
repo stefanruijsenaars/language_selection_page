@@ -8,8 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 
 /**
- * Configure the Language Selection Page language negotiation method for this
- * site.
+ * Configure the Language Selection Page language negotiation method.
  */
 class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
 
