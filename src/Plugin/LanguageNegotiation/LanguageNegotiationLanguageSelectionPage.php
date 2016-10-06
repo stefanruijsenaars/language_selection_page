@@ -36,6 +36,8 @@ class LanguageNegotiationLanguageSelectionPage extends LanguageNegotiationMethod
    * {@inheritdoc}
    */
   public function getLangcode(Request $request = NULL) {
+    // Negotiation is always "unsuccessful". We link to the possible language
+    // versions in the language page itself.
     return FALSE;
   }
 

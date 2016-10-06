@@ -3,8 +3,10 @@
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -14,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "ignore_neutral",
  *   weight = -40,
  *   name = @Translation("Ignore language neutral entities"),
- *   description = @Translation("Ignore language neutral entities and content types."),
+ *   description = @Translation("Ignore entities with langcodes set to Not specified or Not applicable."),
  * )
  */
 class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
@@ -33,19 +35,27 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
    * {@inheritdoc}
    */
   public function evaluate() {
-    // Check if the ignore "language neutral" option is checked.
-    // If so, we will check if the entity language is set to LANGUAGE_NONE.
-    // Checking also for content type translation options since node can have
-    // the default language set instead of LANGUAGE_NONE.
-    // TODO: Make this working for D8.
-    /*
-    if (TRUE == $this->configuration['config']->get('ignore_neutral')) {
-      $entity = $this->configuration['request']->attributes->get('node');
-      if (isset($entity) && (isset($entity->language) && $entity->language == LANGUAGE_NONE || variable_get('language_content_type_' . $entity->type, '') === '0')) {
-        return $this->block();
+    // Check if the "ignore language neutral" option is checked.
+    // If so, we will check if the entity language is set to
+    // LANGCODE_NOT_APPLICABLE or LANGCODE_NOT_SPECIFIED, or if the entity
+    // is not translatable (such as when translation is disabled on a content
+    // type).
+    if ($this->configuration['ignore_neutral']) {
+      // Get the first entity from the route.
+      foreach (\Drupal::routeMatch()->getParameters() as $parameter) {
+        if ($parameter instanceof ContentEntityInterface) {
+          $entity = $parameter;
+          if (!$entity->isTranslatable()) {
+            return $this->block();
+          }
+          // @todo find out if this code will ever be executed. I guess it's never translatable in these cases?
+          $langcode = $entity->language()->getId();
+          if ($langcode == LanguageInterface::LANGCODE_NOT_APPLICABLE || $langcode == LanguageInterface::LANGCODE_NOT_SPECIFIED) {
+            return $this->block();
+          }
+        }
       }
     }
-    */
 
     return $this->pass();
   }
@@ -55,10 +65,10 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form[$this->getPluginId()] = [
-      '#title' => $this->t('Ignore language neutral entities and content types.'),
+      '#title' => $this->t('Ignore language neutral entities and untranslatable entity types.'),
       '#type' => 'checkbox',
       '#default_value' => $this->configuration[$this->getPluginId()],
-      '#description' => $this->t('Do not redirect to the language selection page if the entity is language neutral or if the content do not have multilingual support.'),
+      '#description' => $this->t('Do not redirect to the language selection page if the entity on the page being viewed is language neutral, or if the entity type is not translatable.'),
     ];
 
     return $form;
