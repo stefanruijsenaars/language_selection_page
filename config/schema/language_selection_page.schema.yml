@@ -5,11 +5,9 @@ language_selection_page.negotiation.yml:
     title:
       type: string
       label: 'Language selection page title'
-      translatable: true
     path:
       type: string 
       label: 'Language selection page path'
-      translatable: true
     type:
       type: string
       label: 'Language selection page type (standalone, block, or body)'
