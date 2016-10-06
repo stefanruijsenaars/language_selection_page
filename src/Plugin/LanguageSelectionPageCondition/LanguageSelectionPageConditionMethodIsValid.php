@@ -6,6 +6,7 @@ use Drupal\Core\Language\LanguageInterface;
 use Drupal\language\LanguageNegotiatorInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
+use Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationLanguageSelectionPage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -63,7 +64,7 @@ class LanguageSelectionPageConditionMethodIsValid extends LanguageSelectionPageC
     $this->languageNegotiator->setCurrentUser($user->getAccount());
     $methods = $this->languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
 
-    if (!isset($methods['language-selection-page'])) {
+    if (!isset($methods[LanguageNegotiationLanguageSelectionPage::METHOD_ID])) {
       return $this->block();
     }
 

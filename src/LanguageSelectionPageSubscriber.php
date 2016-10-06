@@ -3,7 +3,7 @@
 namespace Drupal\language_selection_page;
 
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationSelectionPage;
+use Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationLanguageSelectionPage;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -17,7 +17,7 @@ use Drupal\language\Plugin\LanguageNegotiation\LanguageNegotiationSelected;
 class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
 
   /**
-   * The event
+   * The event.
    *
    * @var FilterResponseEvent
    */
@@ -27,6 +27,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * Callback helper.
    *
    * @return array|bool
+   *   The language to use, or FALSE.
    */
   private function getLanguage() {
     $languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
@@ -37,9 +38,9 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
     uasort($methods, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     foreach ($methods as $method_id => $method_definition) {
-      // Do not consider language providers with a lower priority than the
-      // cookie language provider, nor the cookie provider itself.
-      if ($method_id == LanguageNegotiationSelectionPage::METHOD_ID) {
+      // Do not consider methods with a lower priority than the language
+      // selection page method, nor the language selection page method itself.
+      if ($method_id == LanguageNegotiationLanguageSelectionPage::METHOD_ID) {
         return FALSE;
       }
       $lang = $languageNegotiator->getNegotiationMethodInstance($method_id)->getLangcode($this->event->getRequest());
@@ -53,11 +54,15 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Event callback
+   * Event callback.
    *
    * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   *   The event object.
    *
    * @return bool|Response
+   *   The response object, or FALSE.
+   *
+   * @todo return the response object?
    */
   public function redirectToLanguageSelectionPage(FilterResponseEvent $event) {
     $this->event = $event;
@@ -73,7 +78,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
       }
     }
 
-    if (!$lang = $this->getLanguage()) {
+    if (!$this->getLanguage()) {
       $currentPath = \Drupal::getContainer()->get('path.current');
       $request = $this->event->getRequest();
 
@@ -90,6 +95,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
+    // @todo explain why this is set to -50, what does it need to run _before_ or _after_ necessarily?
     $events[KernelEvents::RESPONSE][] = array('redirectToLanguageSelectionPage', -50);
     return $events;
   }

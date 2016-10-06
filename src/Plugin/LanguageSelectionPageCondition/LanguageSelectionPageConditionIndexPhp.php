@@ -7,16 +7,16 @@ use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class for the Index condition plugin.
+ * Class for the Index.php condition plugin.
  *
  * @LanguageSelectionPageCondition(
  *   id = "index",
  *   weight = -60,
- *   name = @Translation("Index"),
+ *   name = "Index.php",
  *   description = @Translation("Bails out when running the script on another php file than index.php."),
  * )
  */
-class LanguageSelectionPageConditionIndex extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
+class LanguageSelectionPageConditionIndexPhp extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
    * {@inheritdoc}
@@ -32,7 +32,7 @@ class LanguageSelectionPageConditionIndex extends LanguageSelectionPageCondition
    * {@inheritdoc}
    */
   public function evaluate() {
-    if ($_SERVER['SCRIPT_NAME'] !== $GLOBALS['base_path'] . 'index.php') {
+    if ($_SERVER['SCRIPT_NAME'] !== base_path() . 'index.php') {
       return $this->block();
     }
 

@@ -33,7 +33,7 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
    * {@inheritdoc}
    */
   public function evaluate() {
-    // Do not return any language if we use the Drupal's block method
+    // Do not return any language if we use Drupal's block method
     // to display the redirection.
     // Be aware that this will automatically assign the default language.
     if ('block' == $this->configuration[$this->getPluginId()]) {
@@ -59,8 +59,8 @@ class LanguageSelectionPageConditionType extends LanguageSelectionPageConditionB
       '#description' => $this->t(
         '<ul>
          <li><b>Standalone - Template only</b>: Display the Language Selection Page template only.</li>
-         <li><b>Embedded - Template in theme</b>: Insert the Language Selection Page body as <i>$content</i> in the current theme.</li>
-         <li><b>Block - In a Drupal\'s block</b>: Insert the Language Selection Page in a block <em>Language Selection Block</em>.</li>
+         <li><b>Embedded - Template in theme</b>: Insert the Language Selection Page body as <i>{{ content }}</i> in the page template for the current theme.</li>
+         <li><b>Block - In a Drupal block</b>: Insert the Language Selection Page in a block <em>Language Selection Block</em>.</li>
        </ul>'
       ),
     ];

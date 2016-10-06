@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Provide a Language Selection Page block.
+ * Provides a Language Selection Page block.
  *
  * @Block(
  *   id = "language-selection-page",
@@ -68,7 +68,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
 
     $content = NULL;
     if ('block' == $config->get('type')) {
-      $content = LanguageSelectionPageController::get_content($this->requestStack, $this->languageManager(), $config);
+      $content = LanguageSelectionPageController::getContent($this->requestStack, $this->languageManager(), $config);
     }
 
     return is_array($content) ? $content : NULL;

@@ -2,24 +2,12 @@
 
 /**
  * @file
- * The body template file of the module language_selection_page
+ * The body template file of the language_selection_page module.
  *
- * Variables used:
- *  - $language_selection_page: array of informations related to this module.
- *
- *  - $language_selection_page['from'] contains an array with these properties:
- *     - text: the URL in text of the page it's coming from
- *     - query: the query of this url, if any
- *     - url: the URL in text, already generated with url()
- *     - link: the HTML link, already generated with l()
- *
- *  - $language_selection_page['links'] contains an array of arrays for each
- *    enabled language with these properties:
- *     - language: the Drupal's language object
- *     - from: the url it's coming from
- *     - query: the query parameters if any
- *     - url: the URL in text already generated with url()
- *     - link: the HTML link, already generated with l()
+ * Available variables:
+ *  - configure_url: the configuration page for the module.
+ *  - destination: url of the page without a language set.
+ *  - language-links: links to the page in all available language.
  */
 
 #}
@@ -30,6 +18,6 @@
 
         <p>You should go to the page in:</p>
         {{ language_links }}
-        <p>This page is the default page of the module Language Selection Page, you can <a href=" {{ configure_url }} ">configure the module</a> to alter its behavior.</p>
+        <p>This page is the default page of the module Language Selection Page, you can <a href="{{ configure_url }}">configure the module</a> to alter its behavior.</p>
     </div>
 </div>

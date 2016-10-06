@@ -42,9 +42,9 @@ class LanguageSelectionPageController extends ControllerBase {
    * PageController constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
-   *   The route match service
+   *   The route match service.
    * @param \Drupal\Core\Render\MainContent\MainContentRendererInterface $main_content_renderer
-   *   The main content renderer
+   *   The main content renderer.
    */
   public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer, RequestStack $request_stack) {
     $this->currentRouteMatch = $current_route_match;
@@ -64,24 +64,26 @@ class LanguageSelectionPageController extends ControllerBase {
   }
 
   /**
-   * Callback: Get the content of the Language Selection Page.
+   * Callback: Gets the content of the Language Selection Page.
    *
    * Method used in LanguageSelectionPageController::main() and
    * LanguageSelectionPageBlock::build().
    *
+   * @todo fix these:
    * TODO: Currently the method returns and array or a RedirectResponse.
    * TODO: We should rewrite in a way that it returns only one data type.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
-   *   The request stack
+   *   The request stack.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager
+   *   The language manager.
    * @param \Drupal\Core\Config\Config $config
-   *   The configuration
+   *   The configuration.
    *
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   A render array or a RedirectResponse to the frontpage.
    */
-  public static function get_content(RequestStack $request_stack, LanguageManagerInterface $language_manager, Config $config) {
+  public static function getContent(RequestStack $request_stack, LanguageManagerInterface $language_manager, Config $config) {
     $request = $request_stack->getCurrentRequest();
     $languages = $language_manager->getLanguages();
 
@@ -90,16 +92,19 @@ class LanguageSelectionPageController extends ControllerBase {
         list(, $destination) = explode('=', $request->getQueryString(), 2);
         $destination = urldecode($destination);
         if (empty($destination)) {
+          // @todo what if the path is prefixed? Maybe redirect to <front> instead?
           return new RedirectResponse('/');
         }
       }
       else {
+        // @todo what if the path is prefixed? Maybe redirect to <front> instead?
         return new RedirectResponse('/');
       }
     } else {
       $destination = $request->getPathInfo();
     }
 
+    // @todo fix this -- this variable isn't used..
     $links_array = [];
     foreach ($language_manager->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
@@ -136,7 +141,7 @@ class LanguageSelectionPageController extends ControllerBase {
    */
   public function main() {
     $config = $this->config('language_selection_page.negotiation');
-    $response = self::get_content($this->requestStack, $this->languageManager(), $config);
+    $response = self::getContent($this->requestStack, $this->languageManager(), $config);
 
     if ('standalone' == $config->get('type')) {
       $page = [
@@ -152,4 +157,3 @@ class LanguageSelectionPageController extends ControllerBase {
   }
 
 }
-

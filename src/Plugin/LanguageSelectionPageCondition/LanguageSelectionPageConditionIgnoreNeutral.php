@@ -58,7 +58,7 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
       '#title' => $this->t('Ignore language neutral entities and content types.'),
       '#type' => 'checkbox',
       '#default_value' => $this->configuration[$this->getPluginId()],
-      '#description' => t('Do not redirect to the language selection page if the entity is language neutral or if the content do not have multilingual support.'),
+      '#description' => $this->t('Do not redirect to the language selection page if the entity is language neutral or if the content do not have multilingual support.'),
     ];
 
     return $form;
