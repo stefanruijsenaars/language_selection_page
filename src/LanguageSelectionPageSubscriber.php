@@ -39,7 +39,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
 
     foreach ($methods as $method_id => $method_definition) {
       // Do not consider methods with a lower priority than the language
-      // selection page method, nor the language selecion page method itself.
+      // selection page method, nor the language selection page method itself.
       if ($method_id == LanguageNegotiationLanguageSelectionPage::METHOD_ID) {
         return FALSE;
       }
