@@ -42,7 +42,7 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     parent::setUp();
     $admin = $this->drupalCreateUser([], NULL, TRUE);
     $this->drupalLogin($admin);
-    // Create FR
+    // Create FR.
     $this->drupalPostForm('admin/config/regional/language/add', [
       'predefined_langcode' => 'fr',
     ], 'Add language');
@@ -81,7 +81,6 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $untranslatable_node1 = $this->drupalCreateNode(['langcode' => LanguageInterface::LANGCODE_NOT_APPLICABLE]);
     $this->drupalGet('node/' . $untranslatable_node1->id());
     $this->assertLanguageSelectionPageNotLoaded();
-
 
     // Turn off translatability of the content type.
     $this->drupalPostform('admin/structure/types/manage/page', ['language_configuration[content_translation]' => 0], 'Save content type');

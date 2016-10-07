@@ -59,10 +59,8 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
    *   The event object.
    *
-   * @return bool|Response
-   *   The response object, or FALSE.
-   *
-   * @todo return the response object? this always returns false...
+   * @return bool
+   *   Returns FALSE.
    */
   public function redirectToLanguageSelectionPage(FilterResponseEvent $event) {
     $this->event = $event;

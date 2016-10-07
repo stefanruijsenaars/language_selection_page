@@ -29,7 +29,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
   /**
    * The link generator.
    *
-   * @var \Drupal\Core\Utility\LinkGeneratorInterface;
+   * @var \Drupal\Core\Utility\LinkGeneratorInterface
    */
   protected $linkGenerator;
 
@@ -107,6 +107,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
     }
     return $this->linkGenerator;
   }
+
   /**
    * Returns the service container.
    *
@@ -115,7 +116,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
    * \Drupal\Core\DependencyInjection\ContainerInjectionInterface should be used
    * for injecting services.
    *
-   * @return \Symfony\Component\DependencyInjection\ContainerInterface $container
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface
    *   The service container.
    */
   private function container() {

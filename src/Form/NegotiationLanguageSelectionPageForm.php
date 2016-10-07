@@ -5,7 +5,6 @@ namespace Drupal\language_selection_page\Form;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 
 /**
  * Configure the Language Selection Page language negotiation method.

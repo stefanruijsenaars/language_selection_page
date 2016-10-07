@@ -12,7 +12,6 @@ use Drupal\Core\Utility\LinkGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Routing\TrustedRedirectResponse;
 
 /**
  * Class LanguageSelectionPageController.
@@ -22,7 +21,7 @@ class LanguageSelectionPageController extends ControllerBase {
   /**
    * The route match service.
    *
-   * @var RouteMatchInterface $currentRouteMatch
+   * @var RouteMatchInterface
    */
   protected $currentRouteMatch;
 
@@ -117,7 +116,8 @@ class LanguageSelectionPageController extends ControllerBase {
         // @todo document why we redirect here
         return new RedirectResponse($request->getBasePath() . '/');
       }
-    } else {
+    }
+    else {
       $destination = $request->getPathInfo();
     }
 
