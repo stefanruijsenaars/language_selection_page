@@ -12,6 +12,7 @@ use Drupal\Core\Utility\LinkGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 
 /**
  * Class LanguageSelectionPageController.
@@ -106,13 +107,15 @@ class LanguageSelectionPageController extends ControllerBase {
         list(, $destination) = explode('=', $request->getQueryString(), 2);
         $destination = urldecode($destination);
         if (empty($destination)) {
-          // @todo what if the path is prefixed? Maybe redirect to <front> instead?
-          return new RedirectResponse('/');
+          // @todo check if there are possibilities for infinite redirects after redirectToLanguageSelectionPage -> getContent
+          // @todo document why we redirect here
+          return new RedirectResponse($request->getBasePath() . '/');
         }
       }
       else {
         // @todo what if the path is prefixed? Maybe redirect to <front> instead?
-        return new RedirectResponse('/');
+        // @todo document why we redirect here
+        return new RedirectResponse($request->getBasePath() . '/');
       }
     } else {
       $destination = $request->getPathInfo();
@@ -155,9 +158,10 @@ class LanguageSelectionPageController extends ControllerBase {
    */
   public function main() {
     $config = $this->config('language_selection_page.negotiation');
-    $response = $this->getContent($this->requestStack, $this->languageManager(), $config);
+    $response = $this->getContent($this->requestStack, $this->languageManager(), $this->linkGenerator, $config);
 
-    if ('standalone' == $config->get('type')) {
+    // @todo fix the RedirectResponse ugliness?
+    if ('standalone' == $config->get('type') && !$response instanceof RedirectResponse) {
       $page = [
         '#type' => 'page',
         '#title' => $config->get('title'),
