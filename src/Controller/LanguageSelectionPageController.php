@@ -8,6 +8,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\MainContent\MainContentRendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Utility\LinkGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -39,17 +40,27 @@ class LanguageSelectionPageController extends ControllerBase {
   protected $requestStack;
 
   /**
+   * The link generator service.
+   *
+   * @var \Drupal\Core\Utility\LinkGeneratorInterface
+   */
+  protected $linkGenerator;
+
+  /**
    * PageController constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $current_route_match
    *   The route match service.
    * @param \Drupal\Core\Render\MainContent\MainContentRendererInterface $main_content_renderer
    *   The main content renderer.
+   * @param \Drupal\Core\Utility\LinkGeneratorInterface $link_generator
+   *   The link generator service.
    */
-  public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer, RequestStack $request_stack) {
+  public function __construct(RouteMatchInterface $current_route_match, MainContentRendererInterface $main_content_renderer, RequestStack $request_stack, LinkGeneratorInterface $link_generator) {
     $this->currentRouteMatch = $current_route_match;
     $this->mainContentRenderer = $main_content_renderer;
     $this->requestStack = $request_stack;
+    $this->linkGenerator = $link_generator;
   }
 
   /**
@@ -59,7 +70,8 @@ class LanguageSelectionPageController extends ControllerBase {
     return new static(
       $container->get('current_route_match'),
       $container->get('main_content_renderer.html'),
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('link_generator')
     );
   }
 
@@ -77,13 +89,15 @@ class LanguageSelectionPageController extends ControllerBase {
    *   The request stack.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
+   * @param \Drupal\Core\Utility\LinkGeneratorInterface $link_generator
+   *   The link generator.
    * @param \Drupal\Core\Config\Config $config
    *   The configuration.
    *
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
    *   A render array or a RedirectResponse to the frontpage.
    */
-  public static function getContent(RequestStack $request_stack, LanguageManagerInterface $language_manager, Config $config) {
+  public static function getContent(RequestStack $request_stack, LanguageManagerInterface $language_manager, LinkGeneratorInterface $link_generator, Config $config) {
     $request = $request_stack->getCurrentRequest();
     $languages = $language_manager->getLanguages();
 
@@ -122,7 +136,7 @@ class LanguageSelectionPageController extends ControllerBase {
     $links = [];
     foreach ($languages as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
-      $link = \Drupal::linkGenerator()->generate($language->getName(), $url);
+      $link = $link_generator->generate($language->getName(), $url);
       $links[$language->getId()] = $link;
     }
 
@@ -141,7 +155,7 @@ class LanguageSelectionPageController extends ControllerBase {
    */
   public function main() {
     $config = $this->config('language_selection_page.negotiation');
-    $response = self::getContent($this->requestStack, $this->languageManager(), $config);
+    $response = $this->getContent($this->requestStack, $this->languageManager(), $config);
 
     if ('standalone' == $config->get('type')) {
       $page = [
