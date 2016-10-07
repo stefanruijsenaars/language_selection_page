@@ -13,6 +13,11 @@ use Drupal\Tests\BrowserTestBase;
 class TestLanguageSelectionPageCondition extends BrowserTestBase {
 
   /**
+   * Text to assert for to determine if we are on the Language Selection Page.
+   */
+  const LANGUAGE_SELECTION_PAGE_TEXT = 'This page is the default page of the module Language Selection Page';
+
+  /**
    * Modules to enable.
    *
    * @var array
@@ -31,7 +36,7 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
   protected $profile = 'standard';
 
   /**
-   * @{inheritdoc}
+   * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
@@ -100,10 +105,10 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $this->assertSession()->responseContains('/node/add/*');
     $this->assertSession()->responseContains('/node/*/edit');
     $node = $this->drupalCreateNode(['langcode' => 'fr']);
-    
+
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageLoaded();
-    
+
     // Add node to blacklisted paths.
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/node/' . $node->id()], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
@@ -113,12 +118,12 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/foo\n/node/' . $node->id() . '\n/bar'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageNotLoaded();
-    
+
     // Add string that contains node, but not node itself.
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/foo\n/node/' . $node->id() . '/foobar\n/bar'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageLoaded();
-    
+
     // Add string that starts with node, but not node itself.
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/node/' . $node->id() . '/foobar'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
@@ -129,15 +134,14 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
    * Assert that the language selection page is loaded.
    */
   protected function assertLanguageSelectionPageLoaded() {
-    $this->assertSession()->pageTextContains('This page is the default page of the module Language Selection Page'); 
+    $this->assertSession()->pageTextContains(self::LANGUAGE_SELECTION_PAGE_TEXT);
   }
 
   /**
    * Assert that the language selection page is not loaded.
    */
   protected function assertLanguageSelectionPageNotLoaded() {
-    // @todo make a constant
-    $this->assertSession()->pageTextNotContains('This page is the default page of the module Language Selection Page');
+    $this->assertSession()->pageTextNotContains(self::LANGUAGE_SELECTION_PAGE_TEXT);
   }
-  
+
 }
