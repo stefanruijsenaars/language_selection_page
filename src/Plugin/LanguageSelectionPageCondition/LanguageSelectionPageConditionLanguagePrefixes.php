@@ -2,7 +2,8 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,21 +21,58 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class LanguageSelectionPageConditionLanguagePrefixes extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * Constructs a LanguageSelectionPageConditionLanguagePrefixes condition plugin.
+   *
+   * @param \Drupal\Core\Language\LanguageManagerInterface
+   *   The language manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface
+   *   The config factory.
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param array $plugin_definition
+   *   The plugin implementation definition.
+   */
+  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, array $configuration, $plugin_id, array $plugin_definition) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->languageManager = $language_manager;
+    $this->configFactory = $config_factory;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
+      $container->get('language_manager'),
+      $container->get('config.factory'),
       $configuration,
       $plugin_id,
-      $plugin_definition);
+      $plugin_definition
+    );
   }
 
   /**
    * {@inheritdoc}
    */
   public function evaluate() {
-    $languages = \Drupal::languageManager()->getNativeLanguages();
-    $language_negotiation_config = \Drupal::config('language.negotiation')->get('url');
+    $languages = $this->languageManager->getNativeLanguages();
+    $language_negotiation_config = $this->configFactory->get('language.negotiation')->get('url');
     $prefixes = array_filter($language_negotiation_config['prefixes']);
 
     if (count($languages) != count($prefixes)) {
