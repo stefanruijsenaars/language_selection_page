@@ -84,8 +84,10 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
     /** @var LanguageSelectionPageConditionInterface $condition */
     foreach ($form_state->get(['conditions']) as $condition) {
       $condition->submitConfigurationForm($form, $form_state);
-      $this->config
-        ->set($condition->getPluginId(), $condition->getConfiguration()[$condition->getPluginId()]);
+      if (isset($condition->getConfiguration()[$condition->getPluginId()])) {
+        $this->config
+          ->set($condition->getPluginId(), $condition->getConfiguration()[$condition->getPluginId()]);
+      }
     }
 
     $this->config->save();

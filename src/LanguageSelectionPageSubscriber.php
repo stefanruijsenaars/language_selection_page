@@ -29,9 +29,9 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * @return array|bool
    *   The language to use, or FALSE.
    */
-  private function getLanguage() {
+  protected function getLanguage() {
     $languageNegotiator = \Drupal::getContainer()->get('language_negotiator');
-    // Get all methods available for this language type.
+    // Get all methods available for the user interface language type.
     $methods = $languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
     // @todo document why we ignore this
     unset($methods[LanguageNegotiationSelected::METHOD_ID]);
@@ -62,7 +62,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * @return bool|Response
    *   The response object, or FALSE.
    *
-   * @todo return the response object?
+   * @todo return the response object? this always returns false...
    */
   public function redirectToLanguageSelectionPage(FilterResponseEvent $event) {
     $this->event = $event;
@@ -82,7 +82,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
       $currentPath = \Drupal::getContainer()->get('path.current');
       $request = $this->event->getRequest();
 
-      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $currentPath->getPath($request));
+      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request->getBasePath() . $currentPath->getPath($request));
       $response = new RedirectResponse($url);
 
       $event->setResponse($response);
