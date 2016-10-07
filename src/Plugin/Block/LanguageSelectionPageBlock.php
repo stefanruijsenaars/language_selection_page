@@ -27,6 +27,14 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
   protected $languageManager;
 
   /**
+   * The link generator.
+   *
+   * @var \Drupal\Core\Utility\LinkGeneratorInterface;
+   */
+  protected $linkGenerator;
+
+
+  /**
    * The configuration factory.
    *
    * @var \Drupal\Core\Config\Config
@@ -68,7 +76,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
 
     $content = NULL;
     if ('block' == $config->get('type')) {
-      $content = LanguageSelectionPageController::getContent($this->requestStack, $this->languageManager(), $config);
+      $content = LanguageSelectionPageController::getContent($this->requestStack, $this->languageManager(), $this->linkGenerator(), $config);
     }
 
     return is_array($content) ? $content : NULL;
@@ -87,6 +95,18 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
     return $this->languageManager;
   }
 
+  /**
+   * Returns the link generator service.
+   *
+   * @return \Drupal\Core\Utility\LinkGeneratorInterface
+   *   The link generator.
+   */
+  protected function linkGenerator() {
+    if (!$this->linkGenerator) {
+      $this->linkGenerator = $this->container()->get('link_generator');
+    }
+    return $this->linkGenerator;
+  }
   /**
    * Returns the service container.
    *
