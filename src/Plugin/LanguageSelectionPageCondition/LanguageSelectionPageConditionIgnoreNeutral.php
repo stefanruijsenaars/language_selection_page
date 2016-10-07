@@ -2,8 +2,9 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -22,13 +23,39 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
 
   /**
+   * The route match.
+   *
+   * @var \Drupal\Core\Routing\RouteMatchInterface
+   */
+  protected $routeMatch;
+
+  /**
+   * LanguageSelectionPageConditionIgnoreNeutral constructor.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   The Route Match object
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param array $plugin_definition
+   *   The plugin implementation definition.
+   */
+  public function __construct(RouteMatchInterface $route_match, array $configuration, $plugin_id, array $plugin_definition) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->routeMatch = $route_match;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
+      $container->get('current_route_match'),
       $configuration,
       $plugin_id,
-      $plugin_definition);
+      $plugin_definition
+    );
   }
 
   /**
@@ -41,11 +68,9 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
     // LANGCODE_NOT_SPECIFIED, or where the content type is not translatable,
     // are ignored.
     if ($this->configuration[$this->getPluginId()]) {
-      // Get the first entity from the route.
-      foreach (\Drupal::routeMatch()->getParameters() as $parameter) {
+      foreach ($this->routeMatch->getParameters() as $parameter) {
         if ($parameter instanceof ContentEntityInterface) {
-          $entity = $parameter;
-          if (!$entity->isTranslatable()) {
+          if (!$parameter->isTranslatable()) {
             return $this->block();
           }
         }
