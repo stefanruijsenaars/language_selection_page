@@ -12,7 +12,6 @@ use Drupal\Core\Utility\LinkGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Routing\TrustedRedirectResponse;
 
 /**
  * Class LanguageSelectionPageController.

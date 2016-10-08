@@ -2,7 +2,6 @@
 
 namespace Drupal\language_selection_page\Form;
 
-use Drupal\Core\Config\Config;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -33,6 +32,7 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase implements Con
    * NegotiationLanguageSelectionPageForm constructor.
    *
    * @param \Drupal\Core\Executable\ExecutableManagerInterface $plugin_manager
+   *   The plugin manager.
    */
   public function __construct(ExecutableManagerInterface $plugin_manager) {
     parent::__construct($this->configFactory());
