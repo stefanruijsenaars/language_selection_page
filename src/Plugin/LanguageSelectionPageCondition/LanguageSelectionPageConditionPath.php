@@ -3,7 +3,6 @@
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
 use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Core\Cache\CacheFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Routing\RouteBuilderInterface;
@@ -127,14 +126,13 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    parent::submitConfigurationForm($form, $form_state);
-
     // Flush only if there is a change in the path.
     if ($this->configuration[$this->getPluginId()] != $form_state->getValue($this->getPluginId())) {
       // Todo: is there another way to do that ?
       $this->cacheConfig->deleteAll();
-      $this->routeBuilder->rebuildIfNeeded();
+      $this->routeBuilder->rebuild();
     }
+    parent::submitConfigurationForm($form, $form_state);
   }
 
 }

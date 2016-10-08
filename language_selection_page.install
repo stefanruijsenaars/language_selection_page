@@ -50,7 +50,7 @@ function language_selection_page_requirements($phase) {
  * Implements hook_uninstall().
  */
 function language_selection_page_uninstall() {
-  $language_types = !empty($type) ? array($type) : \Drupal::languageManager()->getLanguageTypes();
+  $language_types = \Drupal::languageManager()->getLanguageTypes();
 
   foreach ($language_types as $type) {
     $enabled_methods = \Drupal::configFactory()->get('language.types')->get('negotiation.' . $type . '.enabled') ?: array();
