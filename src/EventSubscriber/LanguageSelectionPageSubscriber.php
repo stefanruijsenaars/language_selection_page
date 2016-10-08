@@ -82,7 +82,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * @param \Drupal\Core\Path\CurrentPathStack $current_path
    *   The current path.
    * @param \Drupal\Core\Executable\ExecutableManagerInterface $plugin_manager
-   *   The language selection page condition plugin manager
+   *   The language selection page condition plugin manager.
    */
   public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, LanguageNegotiatorInterface $language_negotiator, CurrentPathStack $current_path, ExecutableManagerInterface $plugin_manager) {
     $this->languageManager = $language_manager;

@@ -35,11 +35,11 @@ class LanguageSelectionPageConditionLanguagePrefixes extends LanguageSelectionPa
   protected $configFactory;
 
   /**
-   * Constructs a LanguageSelectionPageConditionLanguagePrefixes condition plugin.
+   * Constructs a LanguageSelectionPageConditionLanguagePrefixes plugin.
    *
-   * @param \Drupal\Core\Language\LanguageManagerInterface
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
