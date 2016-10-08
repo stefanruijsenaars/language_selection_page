@@ -18,7 +18,7 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase implements Con
   /**
    * The variable containing the conditions configuration.
    *
-   * @var Config
+   * @var \Drupal\Core\Config\Config
    */
   protected $config;
 

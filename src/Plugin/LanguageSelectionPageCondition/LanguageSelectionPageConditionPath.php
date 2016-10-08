@@ -2,8 +2,11 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\CacheFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\CurrentPathStack;
+use Drupal\Core\Routing\RouteBuilderInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,12 +39,30 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
   protected $currentPath;
 
   /**
+   * The route builder service.
+   *
+   * @var \Drupal\Core\Routing\RouteBuilderInterface
+   */
+  protected $routeBuilder;
+
+  /**
+   * The instantiated Cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cacheConfig;
+
+  /**
    * Constructs a LanguageSelectionPageConditionPath plugin.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    * @param \Drupal\Core\Path\CurrentPathStack $current_path
    *   The current path.
+   * @param \Drupal\Core\Routing\RouteBuilderInterface $route_builder
+   *   The route builder service.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_config
+   *   A cache backend used to store configuration.
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -49,10 +70,12 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    * @param array $plugin_definition
    *   The plugin implementation definition.
    */
-  public function __construct(RequestStack $request_stack, CurrentPathStack $current_path, array $configuration, $plugin_id, array $plugin_definition) {
+  public function __construct(RequestStack $request_stack, CurrentPathStack $current_path, RouteBuilderInterface $route_builder, CacheBackendInterface $cache_config, array $configuration, $plugin_id, array $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->requestStack = $request_stack;
     $this->currentPath = $current_path;
+    $this->routeBuilder = $route_builder;
+    $this->cacheConfig = $cache_config;
   }
 
   /**
@@ -62,6 +85,8 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
     return new static(
       $container->get('request_stack'),
       $container->get('path.current'),
+      $container->get('router.builder'),
+      $container->get('cache.config'),
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -106,8 +131,9 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
 
     // Flush only if there is a change in the path.
     if ($this->configuration[$this->getPluginId()] != $form_state->getValue($this->getPluginId())) {
-      \Drupal::cache('config')->deleteAll();
-      \Drupal::service('router.builder')->rebuild();
+      // Todo: is there another way to do that ?
+      $this->cacheConfig->deleteAll();
+      $this->routeBuilder->rebuildIfNeeded();
     }
   }
 
