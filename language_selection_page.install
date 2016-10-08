@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Url;
+use Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationLanguageSelectionPage;
 
 /**
  * Implements hook_requirements().
@@ -44,4 +45,20 @@ function language_selection_page_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function language_selection_page_uninstall() {
+  $language_types = \Drupal::languageManager()->getLanguageTypes();
+
+  foreach ($language_types as $type) {
+    $enabled_methods = \Drupal::configFactory()->get('language.types')->get('negotiation.' . $type . '.enabled') ?: array();
+    if (isset($enabled_methods[LanguageNegotiationLanguageSelectionPage::METHOD_ID])) {
+      unset($enabled_methods[LanguageNegotiationLanguageSelectionPage::METHOD_ID]);
+
+      \Drupal::configFactory()->getEditable('language.types')->set('negotiation.' . $type . '.enabled', $enabled_methods)->save();
+    }
+  }
 }

@@ -3,21 +3,50 @@
 namespace Drupal\language_selection_page\Form;
 
 use Drupal\Core\Config\Config;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure the Language Selection Page language negotiation method.
  */
-class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
+class NegotiationLanguageSelectionPageForm extends ConfigFormBase implements ContainerInjectionInterface {
 
   /**
    * The variable containing the conditions configuration.
    *
-   * @var Config
+   * @var \Drupal\Core\Config\Config
    */
   protected $config;
+
+  /**
+   * The Language Selection Page condition plugin manager.
+   *
+   * @var \Drupal\Core\Executable\ExecutableManagerInterface
+   */
+  protected $languageSelectionPageConditionManager;
+
+  /**
+   * NegotiationLanguageSelectionPageForm constructor.
+   *
+   * @param \Drupal\Core\Executable\ExecutableManagerInterface $plugin_manager
+   */
+  public function __construct(ExecutableManagerInterface $plugin_manager) {
+    parent::__construct($this->configFactory());
+    $this->languageSelectionPageConditionManager = $plugin_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.language_selection_page_condition')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -38,10 +67,9 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $this->config = $this->config('language_selection_page.negotiation');
-    $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
+    $manager = $this->languageSelectionPageConditionManager;
 
     foreach ($manager->getDefinitions() as $def) {
-      /** @var LanguageSelectionPageConditionInterface $condition_plugin */
       $condition_plugin = $manager->createInstance($def['id']);
       $form_state->set(['conditions', $condition_plugin->getPluginId()], $condition_plugin);
 

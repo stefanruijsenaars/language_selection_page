@@ -2,9 +2,7 @@
 
 namespace Drupal\language_selection_page\Plugin\LanguageNegotiation;
 
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\language\LanguageNegotiationMethodBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -18,19 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
  *   config_route_name = "language_selection_page.negotiation_selection_page"
  * )
  */
-class LanguageNegotiationLanguageSelectionPage extends LanguageNegotiationMethodBase implements ContainerFactoryPluginInterface {
+class LanguageNegotiationLanguageSelectionPage extends LanguageNegotiationMethodBase {
 
   /**
    * The language negotiation method id.
    */
   const METHOD_ID = 'language-selection-page';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static();
-  }
 
   /**
    * {@inheritdoc}

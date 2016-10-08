@@ -22,7 +22,7 @@ class LanguageSelectionPageController extends ControllerBase {
   /**
    * The route match service.
    *
-   * @var RouteMatchInterface $currentRouteMatch
+   * @var RouteMatchInterface
    */
   protected $currentRouteMatch;
 
@@ -117,7 +117,8 @@ class LanguageSelectionPageController extends ControllerBase {
         // @todo document why we redirect here
         return new RedirectResponse($request->getBasePath() . '/');
       }
-    } else {
+    }
+    else {
       $destination = $request->getPathInfo();
     }
 

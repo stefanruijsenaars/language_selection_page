@@ -32,7 +32,7 @@ class LanguageSelectionPageConditionIgnoreNeutral extends LanguageSelectionPageC
    * LanguageSelectionPageConditionIgnoreNeutral constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
-   *   The Route Match object
+   *   The Route Match object.
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
