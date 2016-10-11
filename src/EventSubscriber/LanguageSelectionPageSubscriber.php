@@ -3,7 +3,6 @@
 namespace Drupal\language_selection_page\EventSubscriber;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Executable\ExecutableInterface;
 use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -101,7 +100,8 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
   protected function getLanguage() {
     // Get all methods available for the user interface language type.
     $methods = $this->languageNegotiator->getNegotiationMethods(LanguageInterface::TYPE_INTERFACE);
-    // @todo document why we ignore this
+
+    // We ignore this language method or else it will always return a language.
     unset($methods[LanguageNegotiationSelected::METHOD_ID]);
     uasort($methods, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
@@ -160,7 +160,10 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    // @todo explain why this is set to -50, what does it need to run _before_ or _after_ necessarily?
+    // You can set the order of execution of this event callback in the array.
+    // Find the order of execution by doing this in the Drupal Root:
+    // grep "$events[KernelEvents::RESPONSE][]" . -R | grep -v 'Test'
+    // The value is currently set to -50, feel free to adjust if needed.
     $events[KernelEvents::RESPONSE][] = array('redirectToLanguageSelectionPage', -50);
     return $events;
   }

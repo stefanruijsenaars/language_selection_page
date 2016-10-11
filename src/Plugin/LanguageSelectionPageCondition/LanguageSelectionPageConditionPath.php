@@ -128,7 +128,8 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Flush only if there is a change in the path.
     if ($this->configuration[$this->getPluginId()] != $form_state->getValue($this->getPluginId())) {
-      // Todo: is there another way to do that ?
+      // TODO: Fix this. If you change the path of the LSP, it doesn't flush
+      // TODO: the cache properly. This is a release blocker.
       $this->cacheConfig->deleteAll();
       $this->routeBuilder->rebuild();
     }
