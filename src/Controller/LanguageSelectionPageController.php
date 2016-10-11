@@ -105,13 +105,13 @@ class LanguageSelectionPageController extends ControllerBase {
         // If the destination parameter exists and is empty,
         // redirect the user to the front page.
         if (empty($destination)) {
-          return new RedirectResponse('<front>');
+          return new RedirectResponse(Url::fromRoute('<front>')->setAbsolute()->toString());
         }
       }
       else {
         // If the query string containing the destination parameter is empty,
         // redirect the user to the front page.
-        return new RedirectResponse('<front>');
+        return new RedirectResponse(Url::fromRoute('<front>')->setAbsolute()->toString());
       }
     }
     else {
@@ -122,7 +122,7 @@ class LanguageSelectionPageController extends ControllerBase {
     // If the path is set to $destination, redirect the user to the
     // front page to avoid useless loops.
     if (trim($destination, '/') == trim($config->get('path'), '/')) {
-      return new RedirectResponse('<front>');
+      return new RedirectResponse(Url::fromRoute('<front>')->setAbsolute()->toString());
     }
 
     // TODO: This variable will be used in the template.
