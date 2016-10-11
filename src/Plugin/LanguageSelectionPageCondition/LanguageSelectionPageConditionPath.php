@@ -52,6 +52,13 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
   protected $cacheConfig;
 
   /**
+   * Set to true if this condition needs to rebuild the cache upon submit.
+   *
+   * @var bool
+   */
+  protected $needsRebuild = FALSE;
+
+  /**
    * Constructs a LanguageSelectionPageConditionPath plugin.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
@@ -128,12 +135,19 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Flush only if there is a change in the path.
     if ($this->configuration[$this->getPluginId()] != $form_state->getValue($this->getPluginId())) {
-      // TODO: Fix this. If you change the path of the LSP, it doesn't flush
-      // TODO: the cache properly. This is a release blocker.
+      $this->needsRebuild = TRUE;
+    }
+    parent::submitConfigurationForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postConfigSave(array &$form, FormStateInterface $form_state) {
+    if ($this->needsRebuild) {
       $this->cacheConfig->deleteAll();
       $this->routeBuilder->rebuild();
     }
-    parent::submitConfigurationForm($form, $form_state);
   }
 
 }

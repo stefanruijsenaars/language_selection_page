@@ -3,6 +3,7 @@
 namespace Drupal\language_selection_page;
 
 use Drupal\Core\Condition\ConditionInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Interface LanguageSelectionPageConditionInterface.
@@ -65,5 +66,11 @@ interface LanguageSelectionPageConditionInterface extends ConditionInterface {
    *   Returns itself.
    */
   public function setWeight($weight);
+
+  /**
+   * Method that gets triggered when the configuration of the form
+   * has been saved.
+   */
+  public function postConfigSave(array &$form, FormStateInterface $form_state);
 
 }
