@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   weight = -70,
  *   name = @Translation("Server Address condition check"),
  *   description = @Translation("Bails out if the server address is not set."),
+ *   run_in_block = FALSE,
  * )
  */
 class LanguageSelectionPageConditionServerAddr extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {

@@ -30,7 +30,7 @@ class LanguageSelectionPageCondition extends Condition {
   public $weight;
 
   /**
-   * The human-readable name of the language negotiation plugin.
+   * The human-readable name of the language selection page condition plugin.
    *
    * @var \Drupal\Core\Annotation\Translation
    *
@@ -39,12 +39,26 @@ class LanguageSelectionPageCondition extends Condition {
   public $name;
 
   /**
-   * The description of the language negotiation plugin.
+   * The description of the language selection page condition plugin.
    *
    * @var \Drupal\Core\Annotation\Translation
    *
    * @ingroup plugin_translatable
    */
   public $description;
+
+  /**
+   * Whether to apply the plugin to the Language selection page block.
+   *
+   * - TRUE if this condition plugin should be run to determine whether to
+   *   redirect to a language page, as well as whether to display the block.
+   * - FALSE if this condition should be run to determine whether to redirect
+   *   to a language page, but not whether to display the block.
+   *
+   * @var boolean
+   *
+   * @see \Drupal\language_selection_page\Plugin\Block\LanguageSelectionPageBlock::blockAccess()
+   */
+  public $run_in_block;
 
 }

@@ -2,8 +2,11 @@
 
 namespace Drupal\language_selection_page\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Executable\ExecutableManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\language_selection_page\Controller\LanguageSelectionPageController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,11 +52,19 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
   protected $requestStack;
 
   /**
+   * The Language Selection Page condition plugin manager.
+   *
+   * @var \Drupal\Core\Executable\ExecutableManagerInterface
+   */
+  protected $languageSelectionPageConditionManager;
+
+  /**
    * PageController constructor.
    */
-  public function __construct($configuration, $plugin_id, $plugin_definition, RequestStack $request_stack) {
+  public function __construct($configuration, $plugin_id, $plugin_definition, RequestStack $request_stack, ExecutableManagerInterface $plugin_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->requestStack = $request_stack;
+    $this->languageSelectionPageConditionManager = $plugin_manager;
   }
 
   /**
@@ -64,7 +75,8 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('plugin.manager.language_selection_page_condition')
     );
   }
 
@@ -144,6 +156,26 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
       $this->configFactory = $this->container()->get('config.factory');
     }
     return $this->configFactory->get($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    $config = $this->config('language_selection_page.negotiation');
+    $manager = $this->languageSelectionPageConditionManager;
+
+    $defs = array_filter($manager->getDefinitions(), function($value) {
+      return isset($value['run_in_block']) && $value['run_in_block'];
+    });
+    foreach ($defs as $def) {
+      /** @var ExecutableInterface $condition_plugin */
+      $condition_plugin = $manager->createInstance($def['id'], $config->get());
+      if (!$manager->execute($condition_plugin)) {
+        return AccessResult::forbidden();
+      }
+    }
+    return AccessResult::allowed();
   }
 
 }
