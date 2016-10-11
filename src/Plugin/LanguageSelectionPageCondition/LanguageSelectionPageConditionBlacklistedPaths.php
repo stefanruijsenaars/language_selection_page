@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   id = "blacklisted_paths",
  *   weight = -50,
  *   name = @Translation("Blacklisted paths"),
- *   description = @Translation("Ignore paths that are blacklisted.")
+ *   description = @Translation("Ignore paths that are blacklisted."),
+ *   run_in_block = TRUE,
  * )
  */
 class LanguageSelectionPageConditionBlacklistedPaths extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {

@@ -2,8 +2,10 @@
 
 namespace Drupal\language_selection_page\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\language_selection_page\Controller\LanguageSelectionPageController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -144,6 +146,27 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
       $this->configFactory = $this->container()->get('config.factory');
     }
     return $this->configFactory->get($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    // @todo move this elsewhere, to the right place
+    $config = $this->config('language_selection_page.negotiation');
+    $manager = \Drupal::service('plugin.manager.language_selection_page_condition');
+
+    $defs = array_filter($manager->getDefinitions(), function($value) {
+      return isset($value['run_in_block']) && $value['run_in_block'];
+    });
+    foreach ($defs as $def) {
+      /** @var ExecutableInterface $condition_plugin */
+      $condition_plugin = $manager->createInstance($def['id'], $config->get());
+      if (!$manager->execute($condition_plugin)) {
+        return AccessResult::forbidden();
+      }
+    }
+    return AccessResult::allowed();
   }
 
 }

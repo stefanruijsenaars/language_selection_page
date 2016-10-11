@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   weight = -100,
  *   name = @Translation("Language selection page path"),
  *   description = @Translation("Set the path of the language selection page."),
+ *   run_in_block = TRUE,
  * )
  */
 class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {

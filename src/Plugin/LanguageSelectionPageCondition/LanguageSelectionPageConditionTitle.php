@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   weight = -200,
  *   name = @Translation("Language selection page title"),
  *   description = @Translation("Set the title of the language selection page."),
+ *   run_in_block = FALSE,
  * )
  */
 class LanguageSelectionPageConditionTitle extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
