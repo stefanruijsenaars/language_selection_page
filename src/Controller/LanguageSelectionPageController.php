@@ -78,12 +78,7 @@ class LanguageSelectionPageController extends ControllerBase {
   /**
    * Callback: Gets the content of the Language Selection Page.
    *
-   * Method used in LanguageSelectionPageController::main() and
-   * LanguageSelectionPageBlock::build().
-   *
-   * @todo fix these:
-   * TODO: Currently the method returns and array or a RedirectResponse.
-   * TODO: We should rewrite in a way that it returns only one data type.
+   * Method used in LanguageSelectionPageController::main().
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
@@ -95,33 +90,43 @@ class LanguageSelectionPageController extends ControllerBase {
    *   The configuration.
    *
    * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
-   *   A render array or a RedirectResponse to the frontpage.
+   *   A render array or a RedirectResponse.
    */
   public static function getContent(RequestStack $request_stack, LanguageManagerInterface $language_manager, LinkGeneratorInterface $link_generator, Config $config) {
     $request = $request_stack->getCurrentRequest();
     $languages = $language_manager->getLanguages();
 
+    // If we display the LSP on a page, we must check
+    // if the destination parameter is correctly set.
     if ('block' != $config->get('type')) {
       if (!empty($request->getQueryString())) {
         list(, $destination) = explode('=', $request->getQueryString(), 2);
         $destination = urldecode($destination);
+        // If the destination parameter exists and is empty,
+        // redirect the user to the front page.
         if (empty($destination)) {
-          // @todo check if there are possibilities for infinite redirects after redirectToLanguageSelectionPage -> getContent
-          // @todo document why we redirect here
-          return new RedirectResponse($request->getBasePath() . '/');
+          return new RedirectResponse('<front>');
         }
       }
       else {
-        // @todo what if the path is prefixed? Maybe redirect to <front> instead?
-        // @todo document why we redirect here
-        return new RedirectResponse($request->getBasePath() . '/');
+        // If the query string containing the destination parameter is empty,
+        // redirect the user to the front page.
+        return new RedirectResponse('<front>');
       }
     }
     else {
       $destination = $request->getPathInfo();
     }
 
-    // @todo fix this -- this variable isn't used..
+    // $destination is set, now check against the LSP configuration.
+    // If the path is set to $destination, redirect the user to the
+    // front page to avoid useless loops.
+    if (trim($destination, '/') == trim($config->get('path'), '/')) {
+      return new RedirectResponse('<front>');
+    }
+
+    // TODO: This variable will be used in the template.
+    // TODO: We still have to decide what to send in it, and how.
     $links_array = [];
     foreach ($language_manager->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
@@ -160,7 +165,8 @@ class LanguageSelectionPageController extends ControllerBase {
     $config = $this->config('language_selection_page.negotiation');
     $response = $this->getContent($this->requestStack, $this->languageManager(), $this->linkGenerator, $config);
 
-    // @todo fix the RedirectResponse ugliness?
+    // Render the page if we have an array in $response instead of a
+    // RedirectResponse. Otherwise, redirect the user.
     if ('standalone' == $config->get('type') && !$response instanceof RedirectResponse) {
       $page = [
         '#type' => 'page',

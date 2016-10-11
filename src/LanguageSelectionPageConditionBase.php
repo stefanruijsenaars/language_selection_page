@@ -37,7 +37,7 @@ abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase im
    * {@inheritdoc}
    */
   public function summary() {
-    // TODO.
+    // This should return a summary but it's not used in our case.
   }
 
   /**
