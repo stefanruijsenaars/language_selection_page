@@ -95,10 +95,16 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    * {@inheritdoc}
    */
   public function evaluate() {
-    $path = explode('/', trim($this->currentPath->getPath($this->requestStack->getCurrentRequest()), '/'));
+    $current_path = $this->currentPath->getPath($this->requestStack->getCurrentRequest());
+    // @todo use DI
+    $alias_manager = \Drupal::service('path.alias_manager');
+    $alias = $alias_manager->getAliasByPath($current_path);
+    foreach ([$current_path, $alias] as $path) {
+      $path_elements = explode('/', trim($path, '/'));
 
-    if ($path[0] === $this->configuration[$this->getPluginId()]) {
-      return $this->block();
+      if ($path_elements[0] === $this->configuration[$this->getPluginId()]) {
+        return $this->block();
+      }
     }
 
     return $this->pass();
