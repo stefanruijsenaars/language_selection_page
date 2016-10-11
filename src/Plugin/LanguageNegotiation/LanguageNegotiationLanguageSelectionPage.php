@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  *   name = @Translation("Language Selection Page"),
  *   description = @Translation("Language is set from a language selection page"),
  *   id = Drupal\language_selection_page\Plugin\LanguageNegotiation\LanguageNegotiationLanguageSelectionPage::METHOD_ID,
- *   types = {\Drupal\Core\Language\LanguageInterface::TYPE_INTERFACE}
+ *   types = {\Drupal\Core\Language\LanguageInterface::TYPE_INTERFACE},
  *   config_route_name = "language_selection_page.negotiation_selection_page"
  * )
  */
