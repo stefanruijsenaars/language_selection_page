@@ -118,6 +118,12 @@ class NegotiationLanguageSelectionPageForm extends ConfigFormBase implements Con
     }
 
     $this->config->save();
+
+    /** @var LanguageSelectionPageConditionInterface $condition */
+    foreach ($form_state->get(['conditions']) as $condition) {
+      $condition->postConfigSave($form, $form_state);
+    }
+
   }
 
 }

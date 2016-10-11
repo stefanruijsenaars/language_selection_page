@@ -86,4 +86,11 @@ abstract class LanguageSelectionPageConditionBase extends ConditionPluginBase im
     return $this->execute();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function postConfigSave(array &$form, FormStateInterface $form_state) {
+
+  }
+
 }
