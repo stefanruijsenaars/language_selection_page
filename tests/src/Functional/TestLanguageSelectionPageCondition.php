@@ -219,7 +219,17 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $this->assertSession()->pageTextNotContains('Language Selection Page block');
     $this->assertLanguageSelectionPageNotLoaded();
 
-    // @todo test template only & template in theme
+    // Test template only
+    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['type' => 'standalone'], 'Save configuration');
+    $this->drupalGet('node/' . $node->id());
+    $this->assertLanguageSelectionPageLoaded();
+    $this->assertSession()->responseNotContains('<h2>Search</h2>');
+
+    // Test template in theme
+    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['type' => 'embedded'], 'Save configuration');
+    $this->drupalGet('node/' . $node->id());
+    $this->assertLanguageSelectionPageLoaded();
+    $this->assertSession()->responseContains('<h2>Search</h2>');
   }
 
   /**
