@@ -4,6 +4,7 @@ namespace Drupal\language_selection_page\Plugin\LanguageSelectionPageCondition;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Path\AliasManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Routing\RouteBuilderInterface;
 use Drupal\language_selection_page\LanguageSelectionPageConditionBase;
@@ -23,6 +24,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * )
  */
 class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionBase implements LanguageSelectionPageConditionInterface {
+
+  /**
+   * An alias manager to find the alias for the current system path.
+   *
+   * @var \Drupal\Core\Path\AliasManagerInterface
+   */
+  protected $aliasManager;
 
   /**
    * The request stack.
@@ -70,8 +78,9 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    * @param array $plugin_definition
    *   The plugin implementation definition.
    */
-  public function __construct(RequestStack $request_stack, CurrentPathStack $current_path, RouteBuilderInterface $route_builder, CacheBackendInterface $cache_config, array $configuration, $plugin_id, array $plugin_definition) {
+  public function __construct(AliasManagerInterface $alias_manager, RequestStack $request_stack, CurrentPathStack $current_path, RouteBuilderInterface $route_builder, CacheBackendInterface $cache_config, array $configuration, $plugin_id, array $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->aliasManager = $alias_manager;
     $this->requestStack = $request_stack;
     $this->currentPath = $current_path;
     $this->routeBuilder = $route_builder;
@@ -83,6 +92,7 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
+      $container->get('path.alias_manager'),
       $container->get('request_stack'),
       $container->get('path.current'),
       $container->get('router.builder'),
@@ -97,9 +107,7 @@ class LanguageSelectionPageConditionPath extends LanguageSelectionPageConditionB
    */
   public function evaluate() {
     $current_path = $this->currentPath->getPath($this->requestStack->getCurrentRequest());
-    // @todo use DI
-    $alias_manager = \Drupal::service('path.alias_manager');
-    $alias = $alias_manager->getAliasByPath($current_path);
+    $alias = $this->aliasManager->getAliasByPath($current_path);
     foreach ([$current_path, $alias] as $path) {
       $path_elements = explode('/', trim($path, '/'));
 
