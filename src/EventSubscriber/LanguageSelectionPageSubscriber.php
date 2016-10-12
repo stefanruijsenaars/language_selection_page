@@ -147,7 +147,7 @@ class LanguageSelectionPageSubscriber implements EventSubscriberInterface {
     if (!$this->getLanguage()) {
       $request = $this->event->getRequest();
 
-      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $request->getBasePath() . $this->currentPath->getPath($request));
+      $url = sprintf('%s%s?destination=%s', $request->getUriForPath('/'), $config->get('path'), $this->currentPath->getPath($request));
       $response = new RedirectResponse($url);
 
       $event->setResponse($response);

@@ -71,6 +71,7 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $translatable_node1 = $this->drupalCreateNode(['langcode' => 'fr']);
     $this->drupalGet('node/' . $translatable_node1->id());
     $this->assertLanguageSelectionPageLoaded();
+    $this->assertSession()->responseContains('en/node/' . $translatable_node1->id());
 
     // Create untranslatable node.
     $untranslatable_node1 = $this->drupalCreateNode(['langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED]);
