@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class for identifying language from a language selection page.
  *
+ * The recommended order is URL > Cookie > Language Selection Page, so weight
+ * is set to -4 by default so that it is higher than Language Cookie (see
+ * https://www.drupal.org/project/language_cookie), which has a weight
+ * of -5, and also so that it is higher than URL, which has a weight of -8.
+ *
  * @LanguageNegotiation(
  *   weight = -4,
  *   name = @Translation("Language Selection Page"),

@@ -105,6 +105,7 @@ class LanguageSelectionPageController extends ControllerBase {
         // If the destination parameter exists and is empty,
         // redirect the user to the front page.
         if (empty($destination)) {
+          // @todo what if the front page redirects to a language selection page? We don't want infinite redirects.
           return new RedirectResponse(Url::fromRoute('<front>')->setAbsolute()->toString());
         }
       }
@@ -127,6 +128,7 @@ class LanguageSelectionPageController extends ControllerBase {
 
     // TODO: This variable will be used in the template.
     // TODO: We still have to decide what to send in it, and how.
+    // @todo: make link order/output/text/attributes configurable in Twig
     $links_array = [];
     foreach ($language_manager->getNativeLanguages() as $language) {
       $url = Url::fromUserInput($destination, ['language' => $language]);
