@@ -165,7 +165,7 @@ class LanguageSelectionPageBlock extends BlockBase implements ContainerFactoryPl
     $config = $this->config('language_selection_page.negotiation');
     $manager = $this->languageSelectionPageConditionManager;
 
-    $defs = array_filter($manager->getDefinitions(), function($value) {
+    $defs = array_filter($manager->getDefinitions(), function ($value) {
       return isset($value['run_in_block']) && $value['run_in_block'];
     });
     foreach ($defs as $def) {

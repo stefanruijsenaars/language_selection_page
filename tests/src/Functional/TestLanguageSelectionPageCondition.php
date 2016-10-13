@@ -125,12 +125,12 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $this->assertLanguageSelectionPageLoaded();
 
     // Add node to blacklisted paths.
-    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' =>  '/admin/*' . PHP_EOL . '/node/' . $node->id()], 'Save configuration');
+    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/admin/*' . PHP_EOL . '/node/' . $node->id()], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageNotLoaded();
 
     // Add node to blacklisted paths (in the middle).
-    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/admin/*' . PHP_EOL . '/node/' . $node->id() .  PHP_EOL . '/bar'], 'Save configuration');
+    $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['blacklisted_paths' => '/admin/*' . PHP_EOL . '/node/' . $node->id() . PHP_EOL . '/bar'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     // @todo fix this test
     $this->assertLanguageSelectionPageNotLoaded();
@@ -220,13 +220,13 @@ class TestLanguageSelectionPageCondition extends BrowserTestBase {
     $this->assertSession()->pageTextNotContains('Language Selection Page block');
     $this->assertLanguageSelectionPageNotLoaded();
 
-    // Test template only
+    // Test template only.
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['type' => 'standalone'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageLoaded();
     $this->assertSession()->responseNotContains('<h2>Search</h2>');
 
-    // Test template in theme
+    // Test template in theme.
     $this->drupalPostForm('admin/config/regional/language/detection/language_selection_page', ['type' => 'embedded'], 'Save configuration');
     $this->drupalGet('node/' . $node->id());
     $this->assertLanguageSelectionPageLoaded();
